@@ -2,7 +2,7 @@
 % Please edit documentation in R/espn_nba_data.R
 \name{espn_nba_scoreboard}
 \alias{espn_nba_scoreboard}
-\title{Get ESPN men's NBA schedule for a specific year}
+\title{\strong{Get ESPN men's NBA schedule for a specific year}}
 \usage{
 espn_nba_scoreboard(season)
 }
@@ -13,12 +13,12 @@ espn_nba_scoreboard(season)
 Returns a tibble
 }
 \description{
-Get ESPN men's NBA schedule for a specific year
+\strong{Get ESPN men's NBA schedule for a specific year}
 }
 \examples{
 
-# Get schedule from date 2021-02-15 (returns 1000 results, max allowable.)
+# Get schedule from date 2022-02-15 (returns 1000 results, max allowable.)
 \donttest{
-  try(espn_nba_scoreboard (season = "20210215"))
+  try(espn_nba_scoreboard (season = "20220215"))
 }
 }

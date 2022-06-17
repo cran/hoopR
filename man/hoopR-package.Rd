@@ -4,23 +4,29 @@
 \name{hoopR-package}
 \alias{hoopR}
 \alias{hoopR-package}
-\title{hoopR: Functions to Access Men's Basketball Play by Play Data}
+\title{hoopR: Access Men's Basketball Play by Play Data}
 \description{
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A utility to quickly obtain clean and tidy men's basketball play by play data. Provides functions to access live play by play and box score data from ESPN<https://www.espn.com> with shot locations when available. It is also a full NBA Stats API<https://www.nba.com/stats/> wrapper. It is also a scraping and aggregating interface for Ken Pomeroy's men's college basketball statistics website<https://kenpom.com>. It provides users with an active subscription the capability to scrape the website tables and analyze the data for themselves.
+A utility to quickly obtain clean and tidy men's basketball play by play data. Provides functions to access live play by play and box score data from ESPN\url{https://www.espn.com} with shot locations when available. It is also a full NBA Stats API\url{https://www.nba.com/stats/} wrapper. It is also a scraping and aggregating interface for Ken Pomeroy's men's college basketball statistics website\url{https://kenpom.com}. It provides users with an active subscription the capability to scrape the website tables and analyze the data for themselves.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://saiemgilani.github.io/hoopR/}
-  \item \url{https://github.com/saiemgilani/hoopR}
-  \item Report bugs at \url{https://github.com/saiemgilani/hoopR/issues}
+  \item \url{https://github.com/sportsdataverse/hoopR}
+  \item \url{http://hoopr.sportsdataverse.org/}
+  \item Report bugs at \url{https://github.com/sportsdataverse/hoopR/issues}
 }
 
 }
 \author{
 \strong{Maintainer}: Saiem Gilani \email{saiem.gilani@gmail.com}
+
+Other contributors:
+\itemize{
+  \item Jason Lee \email{Jason@aisportsfirm.com} [contributor]
+  \item Billy Fryer \email{billyfryer@att.net} [contributor]
+}
 
 }
 \keyword{internal}

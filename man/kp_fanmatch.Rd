@@ -2,40 +2,44 @@
 % Please edit documentation in R/kp_misc_stats.R
 \name{kp_fanmatch}
 \alias{kp_fanmatch}
-\title{Get FanMatch by date}
+\title{\strong{Get FanMatch by date}}
 \usage{
-kp_fanmatch(date = "2020-02-12")
+kp_fanmatch(date = "2022-02-22")
 }
 \arguments{
 \item{date}{Date of games to pull (YYYY-MM-DD)}
 }
 \value{
-A data frame 16 columns:
-\describe{
-\item{\code{Prediction}}{character.}
-\item{\code{Time(ET)}}{character.}
-\item{\code{Location}}{character.}
-\item{\code{ThrillScore}}{double.}
-\item{\code{Comeback}}{double.}
-\item{\code{Excitement}}{double.}
-\item{\code{WinRk}}{character.}
-\item{\code{WinTeam}}{character.}
-\item{\code{WinScore}}{double.}
-\item{\code{LossRk}}{character.}
-\item{\code{LossTeam}}{character.}
-\item{\code{LossScore}}{double.}
-\item{\code{Poss}}{double.}
-\item{\code{MVP}}{character.}
-\item{\code{Event}}{character.}
-\item{\code{Date}}{character.}
+A data frame 20 columns:\tabular{ll}{
+   col_name \tab types \cr
+   prediction \tab character \cr
+   time_et \tab character \cr
+   location \tab character \cr
+   thrill_score \tab numeric \cr
+   comeback \tab numeric \cr
+   excitement \tab numeric \cr
+   road_rk \tab numeric \cr
+   road_team \tab character \cr
+   home_rk \tab numeric \cr
+   home_team \tab character \cr
+   win_rk \tab numeric \cr
+   win_team \tab character \cr
+   win_score \tab numeric \cr
+   loss_rk \tab numeric \cr
+   loss_team \tab character \cr
+   loss_score \tab numeric \cr
+   poss \tab numeric \cr
+   mvp \tab character \cr
+   event \tab character \cr
+   date \tab character \cr
 }
 }
 \description{
-Get FanMatch by date
+\strong{Get FanMatch by date}
 }
 \examples{
 \donttest{
-  try(kp_fanmatch(date="2020-03-10"))
+  try(kp_fanmatch(date="2022-02-22"))
 }
 }
 \keyword{FanMatch}

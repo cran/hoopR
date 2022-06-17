@@ -1,4 +1,4 @@
-#' Get KenPom Ratings
+#' **Get KenPom Ratings**
 #'
 #' @param min_year First year of data to pull
 #' @param max_year Last year of data to pull
@@ -90,7 +90,7 @@ kp_pomeroy_ratings <- function(min_year, max_year = most_recent_mbb_season()){
 }
 
 
-#' Get KenPom Efficiency and Tempo Summary
+#' **Get KenPom Efficiency and Tempo Summary**
 #'
 #' @param min_year First year of data to pull
 #' @param max_year Last year of data to pull
@@ -232,7 +232,7 @@ kp_efficiency <- function(min_year, max_year = most_recent_mbb_season()){
   return(kenpom)
 }
 
-#' Get Four Factors Data
+#' **Get Four Factors Data**
 #'
 #' @param min_year First year of data to pull
 #' @param max_year Last year of data to pull
@@ -328,7 +328,7 @@ kp_fourfactors <- function(min_year, max_year = most_recent_mbb_season()){
   return(kenpom)
 }
 
-#' Get Team Points Distribution
+#' **Get Team Points Distribution**
 #'
 #' @param min_year First year of data to pull
 #' @param max_year Last year of data to pull
@@ -425,7 +425,7 @@ kp_pointdist <- function(min_year, max_year = most_recent_mbb_season()){
   return(kenpom)
 }
 
-#' Get Heights, Experience, Bench and Continuity Data
+#' **Get Heights, Experience, Bench and Continuity Data**
 #'
 #' @param min_year First year of data to pull
 #' @param max_year Last year of data to pull
@@ -568,7 +568,7 @@ kp_height <- function(min_year,max_year = most_recent_mbb_season()){
   return(kenpom)
 }
 
-#' Get 2-Foul Participation Stats
+#' **Get 2-Foul Participation Stats**
 #'
 #' @param min_year First year of data to pull
 #' @param max_year Last year of data to pull
@@ -659,11 +659,10 @@ kp_foul_trouble <- function(min_year, max_year = most_recent_mbb_season()){
 }
 
 
-#' Get Team Stats
+#' **Get Team Stats**
 #'
 #' @param min_year First year of data to pull
 #' @param max_year Last year of data to pull
-#' @param defense Choose whether to pull offense(default) with FALSE or defense with TRUE
 #' @returns Returns a tibble of team stats
 #' @keywords Team
 #' @importFrom cli cli_abort
@@ -674,10 +673,10 @@ kp_foul_trouble <- function(min_year, max_year = most_recent_mbb_season()){
 #'
 #' @examples
 #' \donttest{
-#'  try(kp_teamstats(min_year = 2019, max_year =2021, defense = FALSE))
+#'  try(kp_teamstats(min_year = 2019, max_year =2021))
 #' }
 
-kp_teamstats <- function(min_year, max_year=most_recent_mbb_season(), defense = FALSE){
+kp_teamstats <- function(min_year, max_year=most_recent_mbb_season()){
   tryCatch(
     expr = {
       if (!has_kp_user_and_pw()) stop("This function requires a KenPom subscription e-mail and password combination,\n      set as the system environment variables KP_USER and KP_PW.", "\n       See ?kp_user_pw for details.", call. = FALSE)
@@ -780,15 +779,21 @@ kp_teamstats <- function(min_year, max_year=most_recent_mbb_season(), defense = 
               "Def.A.Pct", "Def.A.Pct.Rk",
               "Def.FG_3A.Pct", "Def.FG_3A.Pct.Rk",
               "AdjD", "AdjD.Rk"), as.numeric) %>%
+          dplyr::mutate(
+            "Team" = sapply(.data$Team, function(arg) {
+            stringr::str_trim(stringr::str_replace(stringr::str_remove(arg,'\\d+| \\*| \\*+'),'\\*+','')) }),
+            "Year" = year) %>%
           as.data.frame()
 
-        y <- y %>% dplyr::select(-.data$Team, -.data$Conf)
-        z <- dplyr::bind_cols(x, y)
+
 
         ### Store Data
         if(year == min_year) {
-          kenpom <- z
+          kenpom <- x %>%
+            dplyr::left_join(y, by = c("Team","Conf", "Year"))
         }else {
+          z <- x %>%
+            dplyr::left_join(y, by = c("Team","Conf", "Year"))
           kenpom <- dplyr::bind_rows(kenpom, z)
         }
       }
@@ -808,7 +813,7 @@ kp_teamstats <- function(min_year, max_year=most_recent_mbb_season(), defense = 
 }
 
 
-#' Get Player Stats Leaders by Metric
+#' **Get Player Stats Leaders by Metric**
 #'
 #' @param metric Used to get leaders for different metrics. Available values are: \cr
 #' 'ORtg', 'Min', 'eFG', 'Poss', Shots', 'OR', 'DR', 'TO', 'ARate', 'Blk', \cr
@@ -956,7 +961,7 @@ kp_playerstats <- function(metric = 'eFG', conf = NULL, conf_only = FALSE, year=
   return(kenpom)
 }
 
-#' Get KPoY Leaders Tables
+#' **Get KPoY Leaders Tables**
 #'
 #' @param year Year of data to pull (earliest year of data available: 2011)
 #' @returns Returns a list of tibbles: "kPoY Rating", "Game MVP Leaders"

@@ -1,4 +1,4 @@
-#' Get ESPN NBA game data (Pbp, Team and Player Box)
+#' **Get ESPN NBA game data (Pbp, Team and Player Box)**
 #' @author Saiem Gilani
 #' @param game_id Game ID
 #' @return A named list of data frames: Plays, Team, Player
@@ -26,17 +26,135 @@ espn_nba_game_all <- function(game_id){
   full_url <- paste0(play_base_url,
                      "gameId=", game_id)
 
-  res <- httr::RETRY("GET", full_url)
 
-  # Check the result
-  check_status(res)
-
-  resp <- res %>%
-    httr::content(as = "text", encoding = "UTF-8")
   #---- Play-by-Play ------
   tryCatch(
     expr = {
+
+      res <- httr::RETRY("GET", full_url)
+
+      # Check the result
+      check_status(res)
+
+      resp <- res %>%
+        httr::content(as = "text", encoding = "UTF-8")
+
       raw_play_df <- jsonlite::fromJSON(resp)[["gamepackageJSON"]]
+
+      homeAway1 <- jsonlite::fromJSON(resp)[["gamepackageJSON"]][['header']][['competitions']][['competitors']][[1]][['homeAway']][1]
+
+      season <- raw_play_df[['header']][['season']][['year']]
+      season_type <- raw_play_df[['header']][['season']][['type']]
+      game_date <- as.Date(substr(raw_play_df[['header']][['competitions']][['date']], 0, 10))
+      id_vars <- data.frame()
+      if (homeAway1 == "home") {
+
+        homeTeamId = as.integer(raw_play_df[["header"]][["competitions"]][["competitors"]][[1]][['team']][['id']][1])
+        homeTeamMascot = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['name']][1]
+        homeTeamName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['location']][1]
+        homeTeamAbbrev = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['abbreviation']][1]
+        homeTeamLogo = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[1]][['href']][1]
+        homeTeamLogoDark = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[1]][['href']][2]
+        homeTeamFullName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["displayName"]][1]
+        homeTeamColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["color"]][1]
+        homeTeamAlternateColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["alternateColor"]][1]
+        homeTeamScore = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['score']][1])
+        homeTeamWinner = raw_play_df[['header']][['competitions']][['competitors']][[1]][['winner']][1]
+        homeTeamRecord = raw_play_df[['header']][['competitions']][['competitors']][[1]][['record']][[1]][['summary']][1]
+        awayTeamId = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['id']][2])
+        awayTeamMascot = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['name']][2]
+        awayTeamName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['location']][2]
+        awayTeamAbbrev = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['abbreviation']][2]
+        awayTeamLogo = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[2]][['href']][1]
+        awayTeamLogoDark = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[2]][['href']][2]
+        awayTeamFullName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["displayName"]][2]
+        awayTeamColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["color"]][2]
+        awayTeamAlternateColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["alternateColor"]][2]
+        awayTeamScore = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['score']][2])
+        awayTeamWinner = raw_play_df[['header']][['competitions']][['competitors']][[1]][['winner']][2]
+        awayTeamRecord = raw_play_df[['header']][['competitions']][['competitors']][[1]][['record']][[1]][['summary']][2]
+        id_vars <- data.frame(
+          homeTeamId,
+          homeTeamMascot,
+          homeTeamName,
+          homeTeamAbbrev,
+          homeTeamLogo,
+          homeTeamLogoDark,
+          homeTeamFullName,
+          homeTeamColor,
+          homeTeamAlternateColor,
+          homeTeamScore,
+          homeTeamWinner,
+          homeTeamRecord,
+          awayTeamId,
+          awayTeamMascot,
+          awayTeamName,
+          awayTeamAbbrev,
+          awayTeamLogo,
+          awayTeamLogoDark,
+          awayTeamFullName,
+          awayTeamColor,
+          awayTeamAlternateColor,
+          awayTeamScore,
+          awayTeamWinner,
+          awayTeamRecord
+        )
+      }
+      else {
+
+        awayTeamId = as.integer(raw_play_df[["header"]][["competitions"]][["competitors"]][[1]][['team']][['id']][1])
+        awayTeamMascot = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['name']][1]
+        awayTeamName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['location']][1]
+        awayTeamAbbrev = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['abbreviation']][1]
+        awayTeamLogo = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[1]][['href']][1]
+        awayTeamLogoDark = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[1]][['href']][2]
+        awayTeamFullName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["displayName"]][1]
+        awayTeamColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["color"]][1]
+        awayTeamAlternateColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["alternateColor"]][1]
+        awayTeamScore = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['score']][1])
+        awayTeamWinner = raw_play_df[['header']][['competitions']][['competitors']][[1]][['winner']][1]
+        awayTeamRecord = raw_play_df[['header']][['competitions']][['competitors']][[1]][['record']][[1]][['summary']][1]
+        homeTeamId = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['id']][2])
+        homeTeamMascot = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['name']][2]
+        homeTeamName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['location']][2]
+        homeTeamAbbrev = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['abbreviation']][2]
+        homeTeamLogo = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[2]][['href']][1]
+        homeTeamLogoDark = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[2]][['href']][2]
+        homeTeamFullName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["displayName"]][2]
+        homeTeamColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["color"]][2]
+        homeTeamAlternateColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["alternateColor"]][2]
+        homeTeamScore = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['score']][2])
+        homeTeamWinner = raw_play_df[['header']][['competitions']][['competitors']][[1]][['winner']][2]
+        homeTeamRecord = raw_play_df[['header']][['competitions']][['competitors']][[1]][['record']][[1]][['summary']][2]
+        id_vars <- data.frame(
+          homeTeamId,
+          homeTeamMascot,
+          homeTeamName,
+          homeTeamAbbrev,
+          homeTeamLogo,
+          homeTeamLogoDark,
+          homeTeamFullName,
+          homeTeamColor,
+          homeTeamAlternateColor,
+          homeTeamScore,
+          homeTeamWinner,
+          homeTeamRecord,
+          awayTeamId,
+          awayTeamMascot,
+          awayTeamName,
+          awayTeamAbbrev,
+          awayTeamLogo,
+          awayTeamLogoDark,
+          awayTeamFullName,
+          awayTeamColor,
+          awayTeamAlternateColor,
+          awayTeamScore,
+          awayTeamWinner,
+          awayTeamRecord
+        )
+
+      }
+
       raw_play_df <- jsonlite::fromJSON(jsonlite::toJSON(raw_play_df),flatten=TRUE)
 
 
@@ -49,8 +167,15 @@ espn_nba_game_all <- function(game_id){
           tidyr::unnest_wider(.data$athlete.id, names_sep = "_")
       )
       names(aths)<-c("play.id","athlete.id.1","athlete.id.2","athlete.id.3")
-      plays_df <- dplyr::bind_cols(plays, aths) %>%
-        select(-.data$athlete.id)
+      plays_df <- dplyr::bind_cols(plays, aths, id_vars) %>%
+        select(-.data$athlete.id) %>%
+        dplyr::mutate(
+          game_id = game_id,
+          season = season,
+          season_type = season_type,
+          game_date = game_date) %>%
+        janitor::clean_names() %>%
+        make_hoopR_data("ESPN NBA Play-by-Play Information from ESPN.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no play-by-play data for {game_id} available!"))
@@ -121,8 +246,8 @@ espn_nba_game_all <- function(game_id){
           .data$season,
           .data$season_type,
           .data$game_date,
-          tidyr::everything()
-        )
+          tidyr::everything()) %>%
+        make_hoopR_data("ESPN NBA Team Box Information from ESPN.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no team box score data for {game_id} available!"))
@@ -166,8 +291,8 @@ espn_nba_game_all <- function(game_id){
         janitor::clean_names() %>%
         dplyr::rename(
           '+/-'=.data$x,
-          fg3 = .data$x3pt
-        )
+          fg3 = .data$x3pt) %>%
+        make_hoopR_data("ESPN NBA Player Box Information from ESPN.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no player box score data for {game_id} available!"))
@@ -182,7 +307,7 @@ espn_nba_game_all <- function(game_id){
   return(pbp)
 }
 
-#' Get ESPN NBA PBP data
+#' **Get ESPN NBA PBP data**
 #' @author Saiem Gilani
 #' @param game_id Game ID
 #' @return A play-by-play data frame.
@@ -209,19 +334,136 @@ espn_nba_pbp <- function(game_id){
   full_url <- paste0(play_base_url,
                      "gameId=", game_id)
 
-
-  res <- httr::RETRY("GET", full_url)
-
-  # Check the result
-  check_status(res)
-
-  resp <- res %>%
-    httr::content(as = "text", encoding = "UTF-8")
   #---- Play-by-Play ------
   tryCatch(
     expr = {
+
+      res <- httr::RETRY("GET", full_url)
+
+      # Check the result
+      check_status(res)
+
+      resp <- res %>%
+        httr::content(as = "text", encoding = "UTF-8")
+
       raw_play_df <- jsonlite::fromJSON(resp)[["gamepackageJSON"]]
+
+      homeAway1 <- jsonlite::fromJSON(resp)[["gamepackageJSON"]][['header']][['competitions']][['competitors']][[1]][['homeAway']][1]
+
+      season <- raw_play_df[['header']][['season']][['year']]
+      season_type <- raw_play_df[['header']][['season']][['type']]
+      game_date <- as.Date(substr(raw_play_df[['header']][['competitions']][['date']], 0, 10))
+      id_vars <- data.frame()
+      if (homeAway1 == "home") {
+
+        homeTeamId = as.integer(raw_play_df[["header"]][["competitions"]][["competitors"]][[1]][['team']][['id']][1])
+        homeTeamMascot = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['name']][1]
+        homeTeamName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['location']][1]
+        homeTeamAbbrev = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['abbreviation']][1]
+        homeTeamLogo = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[1]][['href']][1]
+        homeTeamLogoDark = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[1]][['href']][2]
+        homeTeamFullName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["displayName"]][1]
+        homeTeamColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["color"]][1]
+        homeTeamAlternateColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["alternateColor"]][1]
+        homeTeamScore = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['score']][1])
+        homeTeamWinner = raw_play_df[['header']][['competitions']][['competitors']][[1]][['winner']][1]
+        homeTeamRecord = raw_play_df[['header']][['competitions']][['competitors']][[1]][['record']][[1]][['summary']][1]
+        awayTeamId = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['id']][2])
+        awayTeamMascot = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['name']][2]
+        awayTeamName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['location']][2]
+        awayTeamAbbrev = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['abbreviation']][2]
+        awayTeamLogo = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[2]][['href']][1]
+        awayTeamLogoDark = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[2]][['href']][2]
+        awayTeamFullName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["displayName"]][2]
+        awayTeamColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["color"]][2]
+        awayTeamAlternateColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["alternateColor"]][2]
+        awayTeamScore = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['score']][2])
+        awayTeamWinner = raw_play_df[['header']][['competitions']][['competitors']][[1]][['winner']][2]
+        awayTeamRecord = raw_play_df[['header']][['competitions']][['competitors']][[1]][['record']][[1]][['summary']][2]
+        id_vars <- data.frame(
+          homeTeamId,
+          homeTeamMascot,
+          homeTeamName,
+          homeTeamAbbrev,
+          homeTeamLogo,
+          homeTeamLogoDark,
+          homeTeamFullName,
+          homeTeamColor,
+          homeTeamAlternateColor,
+          homeTeamScore,
+          homeTeamWinner,
+          homeTeamRecord,
+          awayTeamId,
+          awayTeamMascot,
+          awayTeamName,
+          awayTeamAbbrev,
+          awayTeamLogo,
+          awayTeamLogoDark,
+          awayTeamFullName,
+          awayTeamColor,
+          awayTeamAlternateColor,
+          awayTeamScore,
+          awayTeamWinner,
+          awayTeamRecord
+        )
+      }
+      else {
+
+        awayTeamId = as.integer(raw_play_df[["header"]][["competitions"]][["competitors"]][[1]][['team']][['id']][1])
+        awayTeamMascot = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['name']][1]
+        awayTeamName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['location']][1]
+        awayTeamAbbrev = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['abbreviation']][1]
+        awayTeamLogo = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[1]][['href']][1]
+        awayTeamLogoDark = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[1]][['href']][2]
+        awayTeamFullName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["displayName"]][1]
+        awayTeamColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["color"]][1]
+        awayTeamAlternateColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["alternateColor"]][1]
+        awayTeamScore = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['score']][1])
+        awayTeamWinner = raw_play_df[['header']][['competitions']][['competitors']][[1]][['winner']][1]
+        awayTeamRecord = raw_play_df[['header']][['competitions']][['competitors']][[1]][['record']][[1]][['summary']][1]
+        homeTeamId = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['id']][2])
+        homeTeamMascot = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['name']][2]
+        homeTeamName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['location']][2]
+        homeTeamAbbrev = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['abbreviation']][2]
+        homeTeamLogo = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[2]][['href']][1]
+        homeTeamLogoDark = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][['logos']][[2]][['href']][2]
+        homeTeamFullName = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["displayName"]][2]
+        homeTeamColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["color"]][2]
+        homeTeamAlternateColor = raw_play_df[['header']][['competitions']][['competitors']][[1]][['team']][["alternateColor"]][2]
+        homeTeamScore = as.integer(raw_play_df[['header']][['competitions']][['competitors']][[1]][['score']][2])
+        homeTeamWinner = raw_play_df[['header']][['competitions']][['competitors']][[1]][['winner']][2]
+        homeTeamRecord = raw_play_df[['header']][['competitions']][['competitors']][[1]][['record']][[1]][['summary']][2]
+        id_vars <- data.frame(
+          homeTeamId,
+          homeTeamMascot,
+          homeTeamName,
+          homeTeamAbbrev,
+          homeTeamLogo,
+          homeTeamLogoDark,
+          homeTeamFullName,
+          homeTeamColor,
+          homeTeamAlternateColor,
+          homeTeamScore,
+          homeTeamWinner,
+          homeTeamRecord,
+          awayTeamId,
+          awayTeamMascot,
+          awayTeamName,
+          awayTeamAbbrev,
+          awayTeamLogo,
+          awayTeamLogoDark,
+          awayTeamFullName,
+          awayTeamColor,
+          awayTeamAlternateColor,
+          awayTeamScore,
+          awayTeamWinner,
+          awayTeamRecord
+        )
+
+      }
+
       raw_play_df <- jsonlite::fromJSON(jsonlite::toJSON(raw_play_df),flatten=TRUE)
+
 
       plays <- raw_play_df[["plays"]] %>%
         tidyr::unnest_wider(.data$participants)
@@ -232,11 +474,15 @@ espn_nba_pbp <- function(game_id){
           tidyr::unnest_wider(.data$athlete.id, names_sep = "_")
       )
       names(aths)<-c("play.id","athlete.id.1","athlete.id.2","athlete.id.3")
-      plays_df <- dplyr::bind_cols(plays, aths) %>%
-        select(-.data$athlete.id)
-
-      plays_df <- plays_df %>%
-        janitor::clean_names()
+      plays_df <- dplyr::bind_cols(plays, aths, id_vars) %>%
+        select(-.data$athlete.id) %>%
+        dplyr::mutate(
+          game_id = game_id,
+          season = season,
+          season_type = season_type,
+          game_date = game_date) %>%
+        janitor::clean_names() %>%
+        make_hoopR_data("ESPN NBA Play-by-Play Information from ESPN.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no play-by-play data for {game_id} available!"))
@@ -250,7 +496,7 @@ espn_nba_pbp <- function(game_id){
 
   return(plays_df)
 }
-#' Get ESPN NBA team box scores
+#' **Get ESPN NBA team box scores**
 #' @author Saiem Gilani
 #' @param game_id Game ID
 #' @return A team boxscore data frame
@@ -276,17 +522,19 @@ espn_nba_team_box <- function(game_id){
   full_url <- paste0(play_base_url,
                      "gameId=", game_id)
 
-  res <- httr::RETRY("GET", full_url)
-
-  # Check the result
-  check_status(res)
-
-  resp <- res %>%
-    httr::content(as = "text", encoding = "UTF-8")
 
   #---- Team Box ------
   tryCatch(
     expr = {
+
+      res <- httr::RETRY("GET", full_url)
+
+      # Check the result
+      check_status(res)
+
+      resp <- res %>%
+        httr::content(as = "text", encoding = "UTF-8")
+
       raw_play_df <- jsonlite::fromJSON(resp)[["gamepackageJSON"]]
       season <- raw_play_df[['header']][['season']][['year']]
       season_type <- raw_play_df[['header']][['season']][['type']]
@@ -345,8 +593,8 @@ espn_nba_team_box <- function(game_id){
           .data$season,
           .data$season_type,
           .data$game_date,
-          tidyr::everything()
-        )
+          tidyr::everything()) %>%
+        make_hoopR_data("ESPN NBA Team Box Information from ESPN.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no team box score data for {game_id} available!"))
@@ -358,7 +606,7 @@ espn_nba_team_box <- function(game_id){
   )
   return(team_box_score)
 }
-#' Get ESPN NBA player box scores
+#' **Get ESPN NBA player box scores**
 #' @author Saiem Gilani
 #' @param game_id Game ID
 #' @return A player boxscore data frame
@@ -384,17 +632,18 @@ espn_nba_player_box <- function(game_id){
   full_url <- paste0(play_base_url,
                      "gameId=", game_id)
 
-  res <- httr::RETRY("GET", full_url)
-
-  # Check the result
-  check_status(res)
-
-  resp <- res %>%
-    httr::content(as = "text", encoding = "UTF-8")
 
   #---- Player Box ------
   tryCatch(
     expr = {
+      res <- httr::RETRY("GET", full_url)
+
+      # Check the result
+      check_status(res)
+
+      resp <- res %>%
+        httr::content(as = "text", encoding = "UTF-8")
+
       raw_play_df <- jsonlite::fromJSON(resp)[["gamepackageJSON"]]
       raw_play_df <- jsonlite::fromJSON(jsonlite::toJSON(raw_play_df),flatten=TRUE)
 
@@ -424,8 +673,8 @@ espn_nba_player_box <- function(game_id){
         janitor::clean_names() %>%
         dplyr::rename(
           '+/-'=.data$x,
-          fg3 = .data$x3pt
-        )
+          fg3 = .data$x3pt) %>%
+        make_hoopR_data("ESPN NBA Player Box Information from ESPN.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no player box score data for {game_id} available!"))
@@ -439,7 +688,7 @@ espn_nba_player_box <- function(game_id){
 }
 
 
-#' Get ESPN NBA team names and ids
+#' **Get ESPN NBA team names and IDs**
 #' @author Saiem Gilani
 #' @return A teams data frame
 #' @keywords NBA Teams
@@ -501,18 +750,15 @@ espn_nba_teams <- function(){
         stats <- s %>% unnest_wider(.data$g)
 
         records <- dplyr::bind_cols(records %>% dplyr::select(.data$summary), stats)
-        leagues <- leagues %>% dplyr::select(
-          -.data$record
-        )
+        leagues <- leagues %>%
+          dplyr::select(-.data$record)
       }
       leagues <- leagues %>% dplyr::select(
         -.data$links,
         -.data$isActive,
         -.data$isAllStar,
         -.data$uid,
-        -.data$slug,
-        -.data$record,
-        -.data$logos_lastUpdated)
+        -.data$slug)
       teams <- leagues %>%
         dplyr::rename(
           logo = .data$logos_href_1,
@@ -524,7 +770,8 @@ espn_nba_teams <- function(){
           alternate_color = .data$alternateColor,
           display_name = .data$displayName
         ) %>%
-        janitor::clean_names()
+        janitor::clean_names() %>%
+        make_hoopR_data("ESPN NBA Teams Information from ESPN.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no teams data available!"))
@@ -538,7 +785,7 @@ espn_nba_teams <- function(){
 }
 
 
-#' Get ESPN men's NBA schedule for a specific year
+#' **Get ESPN men's NBA schedule for a specific year**
 #'
 #' @param season Either numeric or character (YYYYMMDD)
 #' @return Returns a tibble
@@ -551,17 +798,17 @@ espn_nba_teams <- function(){
 #' @export
 #' @examples
 #'
-#' # Get schedule from date 2021-02-15 (returns 1000 results, max allowable.)
+#' # Get schedule from date 2022-02-15 (returns 1000 results, max allowable.)
 #' \donttest{
-#'   try(espn_nba_scoreboard (season = "20210215"))
+#'   try(espn_nba_scoreboard (season = "20220215"))
 #' }
 
 espn_nba_scoreboard <- function(season){
 
   max_year <- substr(Sys.Date(), 1,4)
 
-  if(!(as.integer(substr(season, 1, 4)) %in% c(2001:max_year))){
-    message(paste("Error: Season must be between 2001 and", max_year))
+  if(!(as.integer(substr(season, 1, 4)) > 2001)){
+    message(paste("Error: Season must be between 2001 and", max_year + 1))
   }
 
   # year > 2000
@@ -571,60 +818,117 @@ espn_nba_scoreboard <- function(season){
 
   schedule_api <- glue::glue("http://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?limit=1000&dates={season_dates}")
 
-  res <- httr::RETRY("GET", schedule_api)
-
-  # Check the result
-  check_status(res)
-
   tryCatch(
     expr = {
+
+      res <- httr::RETRY("GET", schedule_api)
+
+      # Check the result
+      check_status(res)
+
       raw_sched <- res %>%
         httr::content(as = "text", encoding = "UTF-8") %>%
-        jsonlite::fromJSON(simplifyDataFrame = FALSE, simplifyVector = FALSE, simplifyMatrix = FALSE)
+        jsonlite::fromJSON(
+          simplifyDataFrame = FALSE,
+          simplifyVector = FALSE,
+          simplifyMatrix = FALSE
+        )
 
       nba_data <- raw_sched[["events"]] %>%
         tibble::tibble(data = .data$.) %>%
         tidyr::unnest_wider(.data$data) %>%
         tidyr::unchop(.data$competitions) %>%
-        dplyr::select(-.data$id, -.data$uid, -.data$date, -.data$status) %>%
+        dplyr::select(-.data$id,-.data$uid,-.data$date,-.data$status) %>%
         tidyr::unnest_wider(.data$competitions) %>%
-        dplyr::rename(matchup = .data$name, matchup_short = .data$shortName, game_id = .data$id, game_uid = .data$uid, game_date = .data$date) %>%
+        dplyr::rename(
+          matchup = .data$name,
+          matchup_short = .data$shortName,
+          game_id = .data$id,
+          game_uid = .data$uid,
+          game_date = .data$date
+        ) %>%
         tidyr::hoist(.data$status,
                      status_name = list("type", "name")) %>%
-        dplyr::select(!dplyr::any_of(c("timeValid", "neutralSite", "conferenceCompetition","recent", "venue", "type"))) %>%
-        tidyr::unnest_wider(.data$season) %>%
-        dplyr::rename(season = .data$year) %>%
-        dplyr::select(-dplyr::any_of("status")) %>%
+        dplyr::select(!dplyr::any_of(
+          c(
+            "timeValid",
+            "neutralSite",
+            "conferenceCompetition",
+            "recent",
+            "venue",
+            "type"
+          )
+        )) %>%
+        tidyr::unnest_wider(.data$season,names_sep="_") %>%
+        dplyr::rename(season = .data$season_year) %>%
+        dplyr::select(-dplyr::any_of("status"))
+      nba_data <- nba_data %>%
         tidyr::hoist(
           .data$competitors,
-          home_team_name = list(1, "team", "name"),
-          home_team_logo = list(1, "team", "logo"),
-          home_team_abb = list(1, "team", "abbreviation"),
-          home_team_id = list(1, "team", "id"),
-          home_team_location = list(1, "team", "location"),
-          home_team_full = list(1, "team", "displayName"),
-          home_team_color = list(1, "team", "color"),
-          home_score = list(1, "score"),
-          home_win = list(1, "winner"),
-          home_record = list(1, "records", 1, "summary"),
+          homeAway = list(1,"homeAway")
+        )
+      nba_data <- nba_data %>%
+        tidyr::hoist(
+          .data$competitors,
+          team1_team_name = list(1, "team", "name"),
+          team1_team_logo = list(1, "team", "logo"),
+          team1_team_abb = list(1, "team", "abbreviation"),
+          team1_team_id = list(1, "team", "id"),
+          team1_team_location = list(1, "team", "location"),
+          team1_team_full = list(1, "team", "displayName"),
+          team1_team_color = list(1, "team", "color"),
+          team1_score = list(1, "score"),
+          team1_win = list(1, "winner"),
+          team1_record = list(1, "records", 1, "summary"),
           # away team
-          away_team_name = list(2, "team", "name"),
-          away_team_logo = list(2, "team", "logo"),
-          away_team_abb = list(2, "team", "abbreviation"),
-          away_team_id = list(2, "team", "id"),
-          away_team_location = list(2, "team", "location"),
-          away_team_full = list(2, "team", "displayName"),
-          away_team_color = list(2, "team", "color"),
-          away_score = list(2, "score"),
-          away_win = list(2, "winner"),
-          away_record = list(2, "records", 1, "summary"),
-        ) %>%
-        dplyr::mutate(home_win = as.integer(.data$home_win),
-                      away_win = as.integer(.data$away_win),
-                      home_score = as.integer(.data$home_score),
-                      away_score = as.integer(.data$away_score))
+          team2_team_name = list(2, "team", "name"),
+          team2_team_logo = list(2, "team", "logo"),
+          team2_team_abb = list(2, "team", "abbreviation"),
+          team2_team_id = list(2, "team", "id"),
+          team2_team_location = list(2, "team", "location"),
+          team2_team_full = list(2, "team", "displayName"),
+          team2_team_color = list(2, "team", "color"),
+          team2_score = list(2, "score"),
+          team2_win = list(2, "winner"),
+          team2_record = list(2, "records", 1, "summary"))
 
-      if("leaders" %in% names(nba_data)){
+
+      nba_data <- nba_data %>%
+        dplyr::mutate(
+          home_team_name = ifelse(.data$homeAway=="home",.data$team1_team_name, .data$team2_team_name),
+          home_team_logo = ifelse(.data$homeAway=="home",.data$team1_team_logo, .data$team2_team_logo),
+          home_team_abb = ifelse(.data$homeAway=="home",.data$team1_team_abb, .data$team2_team_abb),
+          home_team_id = ifelse(.data$homeAway=="home",.data$team1_team_id, .data$team2_team_id),
+          home_team_location = ifelse(.data$homeAway=="home",.data$team1_team_location, .data$team2_team_location),
+          home_team_full_name = ifelse(.data$homeAway=="home",.data$team1_team_full, .data$team2_team_full),
+          home_team_color = ifelse(.data$homeAway=="home",.data$team1_team_color, .data$team2_team_color),
+          home_score = ifelse(.data$homeAway=="home",.data$team1_score, .data$team2_score),
+          home_win = ifelse(.data$homeAway=="home",.data$team1_win, .data$team2_win),
+          home_record = ifelse(.data$homeAway=="home",.data$team1_record, .data$team2_record),
+          away_team_name = ifelse(.data$homeAway=="away",.data$team1_team_name, .data$team2_team_name),
+          away_team_logo = ifelse(.data$homeAway=="away",.data$team1_team_logo, .data$team2_team_logo),
+          away_team_abb = ifelse(.data$homeAway=="away",.data$team1_team_abb, .data$team2_team_abb),
+          away_team_id = ifelse(.data$homeAway=="away",.data$team1_team_id, .data$team2_team_id),
+          away_team_location = ifelse(.data$homeAway=="away",.data$team1_team_location, .data$team2_team_location),
+          away_team_full_name = ifelse(.data$homeAway=="away",.data$team1_team_full, .data$team2_team_full),
+          away_team_color = ifelse(.data$homeAway=="away",.data$team1_team_color, .data$team2_team_color),
+          away_score = ifelse(.data$homeAway=="away",.data$team1_score, .data$team2_score),
+          away_win = ifelse(.data$homeAway=="away",.data$team1_win, .data$team2_win),
+          away_record = ifelse(.data$homeAway=="away",.data$team1_record, .data$team2_record)
+        )
+
+      nba_data <- nba_data %>%
+        dplyr::mutate(
+          home_win = as.integer(.data$home_win),
+          away_win = as.integer(.data$away_win),
+          home_score = as.integer(.data$home_score),
+          away_score = as.integer(.data$away_score))
+      nba_data <- nba_data %>%
+        dplyr::select(-dplyr::any_of(dplyr::starts_with("team1")),
+                      -dplyr::any_of(dplyr::starts_with("team2")),
+                      -dplyr::any_of(c("homeAway")))
+
+      if ("leaders" %in% names(nba_data)) {
         schedule_out <- nba_data %>%
           tidyr::hoist(
             .data$leaders,
@@ -654,23 +958,44 @@ espn_nba_scoreboard <- function(season){
             assists_leader_pos = list(3, "leaders", 1, "athlete", "position", "abbreviation"),
           )
 
-        if("broadcasts" %in% names(schedule_out)) {
+        if ("broadcasts" %in% names(schedule_out)) {
           schedule_out %>%
             tidyr::hoist(
               .data$broadcasts,
               broadcast_market = list(1, "market"),
-              broadcast_name = list(1, "names", 1)
-            ) %>%
+              broadcast_name = list(1, "names", 1)) %>%
             dplyr::select(!where(is.list)) %>%
-            janitor::clean_names()
-        } else {
-          schedule_out %>%
-            janitor::clean_names()
+            janitor::clean_names() %>%
+            make_hoopR_data("ESPN NBA Scoreboard Information from ESPN.com",Sys.time())
         }
-      } else {
-        nba_data %>% dplyr::select(!where(is.list)) %>%
-          janitor::clean_names()
+
+        else {
+          schedule_out %>%
+            janitor::clean_names() %>%
+            make_hoopR_data("ESPN NBA Scoreboard Information from ESPN.com",Sys.time())
+        }
       }
+      else {
+
+        if ("broadcasts" %in% names(nba_data)) {
+          nba_data %>%
+            tidyr::hoist(
+              .data$broadcasts,
+              broadcast_market = list(1, "market"),
+              broadcast_name = list(1, "names", 1)) %>%
+            dplyr::select(!where(is.list)) %>%
+            janitor::clean_names() %>%
+            make_hoopR_data("ESPN NBA Scoreboard Information from ESPN.com",Sys.time())
+        }
+
+        else {
+          nba_data %>%
+            dplyr::select(!where(is.list)) %>%
+            janitor::clean_names() %>%
+            make_hoopR_data("ESPN NBA Scoreboard Information from ESPN.com",Sys.time())
+        }
+      }
+
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no scoreboard data available!"))
@@ -682,7 +1007,7 @@ espn_nba_scoreboard <- function(season){
   )
 }
 
-#' Get ESPN NBA's Standings
+#' **Get ESPN NBA's Standings**
 #'
 #' @param year Either numeric or character (YYYY)
 #' @return A standings data frame
@@ -750,6 +1075,8 @@ espn_nba_standings <- function(year){
       #joining the 2 dataframes together to create a standings table
 
       standings <- cbind(teams, standings_data)
+      standings <- standings %>%
+        make_hoopR_data("ESPN NBA Standings Information from ESPN.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no standings data available!"))
@@ -764,10 +1091,10 @@ espn_nba_standings <- function(year){
 }
 
 
-#' Get ESPN NBA's Betting information
+#' **Get ESPN NBA's Betting information**
 #'
 #' @param game_id  Game ID
-#' @returns Returns a named list of data frames: pickcenter, againstTheSpread, predictor_df
+#' @returns Returns a named list of data frames: pickcenter, againstTheSpread, predictor
 #' @keywords NBA Betting
 #' @importFrom rlang .data
 #' @importFrom jsonlite fromJSON toJSON
@@ -802,7 +1129,8 @@ espn_nba_betting <- function(game_id){
       if("pickcenter" %in% names(raw_summary)){
         pickcenter <- jsonlite::fromJSON(jsonlite::toJSON(raw_summary$pickcenter), flatten=TRUE) %>%
           janitor::clean_names() %>%
-          dplyr::select(-.data$links)
+          dplyr::select(-.data$links) %>%
+          make_hoopR_data("ESPN NBA Pickcenter Information from ESPN.com",Sys.time())
       }
       if("againstTheSpread" %in% names(raw_summary)){
         againstTheSpread <- jsonlite::fromJSON(jsonlite::toJSON(raw_summary$againstTheSpread)) %>%
@@ -813,7 +1141,8 @@ espn_nba_betting <- function(game_id){
         records <- againstTheSpread$records
 
         teams$records <- records
-        againstTheSpread <- teams
+        againstTheSpread <- teams %>%
+          make_hoopR_data("ESPN NBA Against the Spread Information from ESPN.com",Sys.time())
       }
       if("predictor" %in% names(raw_summary)){
         predictor_df <- data.frame(
@@ -822,6 +1151,8 @@ espn_nba_betting <- function(game_id){
           away_team_game_projection = raw_summary$predictor$awayTeam$gameProjection,
           away_team_chance_loss = raw_summary$predictor$awayTeam$teamChanceLoss
         )
+        predictor_df <- predictor_df %>%
+          make_hoopR_data("ESPN NBA Predictor Information from ESPN.com",Sys.time())
       }
     },
     error = function(e) {
@@ -834,6 +1165,359 @@ espn_nba_betting <- function(game_id){
 
   )
   betting <- c(list(pickcenter), list(againstTheSpread), list(predictor_df))
-  names(betting) <- c("pickcenter", "againstTheSpread", "predictor_df")
+  names(betting) <- c("pickcenter", "againstTheSpread", "predictor")
   return(betting)
+}
+
+
+#' @title
+#' **Get ESPN NBA team stats data**
+#' @author Saiem Gilani
+#' @param team_id Team ID
+#' @param year Year
+#' @param season_type (character, default: regular): Season type - regular or postseason
+#' @param total (boolean, default: FALSE): Totals
+#' @keywords NBA Team Stats
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows
+#' @importFrom tidyr unnest unnest_wider everything
+#' @export
+#' @return Returns a tibble with the team stats data
+#'
+#' @examples
+#' \donttest{
+#'   try(espn_nba_team_stats(team_id = 18, year = 2020))
+#' }
+
+espn_nba_team_stats <- function(team_id, year, season_type='regular', total=FALSE){
+  if (!(tolower(season_type) %in% c("regular","postseason"))) {
+    # Check if season_type is appropriate, if not regular
+    cli::cli_abort("Enter valid season_type: regular or postseason")
+  }
+  s_type <- ifelse(season_type == "postseason", 3, 2)
+
+  base_url <- "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/"
+
+  totals <- ifelse(total == TRUE, 0, "")
+  full_url <- paste0(
+    base_url,
+    year,
+    '/types/',s_type,
+    '/teams/',team_id,
+    '/statistics/', totals
+  )
+
+  df <- data.frame()
+  tryCatch(
+    expr = {
+
+      # Create the GET request and set response as res
+      res <- httr::RETRY("GET", full_url)
+
+      # Check the result
+      check_status(res)
+
+      # Get the content and return result as data.frame
+      df <- res %>%
+        httr::content(as = "text", encoding = "UTF-8")  %>%
+        jsonlite::fromJSON(simplifyDataFrame = FALSE, simplifyVector = FALSE, simplifyMatrix = FALSE)
+
+      team_url <- df[["team"]][["$ref"]]
+
+      # Create the GET request and set response as res
+      team_res <- httr::RETRY("GET", team_url)
+
+      # Check the result
+      check_status(team_res)
+
+      team_df <- team_res %>%
+        httr::content(as = "text", encoding = "UTF-8") %>%
+        jsonlite::fromJSON(simplifyDataFrame = FALSE, simplifyVector = FALSE, simplifyMatrix = FALSE)
+
+      team_df[["links"]] <- NULL
+      team_df[["injuries"]] <- NULL
+      team_df[["record"]] <- NULL
+      team_df[["athletes"]] <- NULL
+      team_df[["venue"]] <- NULL
+      team_df[["groups"]] <- NULL
+      team_df[["ranks"]] <- NULL
+      team_df[["statistics"]] <- NULL
+      team_df[["leaders"]] <- NULL
+      team_df[["links"]] <- NULL
+      team_df[["notes"]] <- NULL
+      team_df[["franchise"]] <- NULL
+      team_df[["againstTheSpreadRecords"]] <- NULL
+      team_df[["oddsRecords"]] <- NULL
+      team_df[["college"]] <- NULL
+      team_df[["transactions"]] <- NULL
+      team_df[["leaders"]] <- NULL
+      team_df[["depthCharts"]] <- NULL
+      team_df[["awards"]] <- NULL
+      team_df[["events"]] <- NULL
+
+
+      team_df <- team_df %>%
+        purrr::map_if(is.list,as.data.frame) %>%
+        as.data.frame() %>%
+        dplyr::select(
+          -dplyr::any_of(
+            c("logos.width",
+              "logos.height",
+              "logos.alt",
+              "logos.rel..full.",
+              "logos.rel..default.",
+              "logos.rel..scoreboard.",
+              "logos.rel..scoreboard..1",
+              "logos.rel..scoreboard.2",
+              "logos.lastUpdated",
+              "logos.width.1",
+              "logos.height.1",
+              "logos.alt.1",
+              "logos.rel..full..1",
+              "logos.rel..dark.",
+              "logos.rel..dark..1",
+              "logos.lastUpdated.1",
+              "logos.width.2",
+              "logos.height.2",
+              "logos.alt.2",
+              "logos.rel..full..2",
+              "logos.rel..scoreboard.",
+              "logos.lastUpdated.2",
+              "logos.width.3",
+              "logos.height.3",
+              "logos.alt.3",
+              "logos.rel..full..3",
+              "logos.lastUpdated.3",
+              "X.ref",
+              "X.ref.1",
+              "X.ref.2"))) %>%
+        janitor::clean_names()
+
+      colnames(team_df)[1:13] <- paste0("team_",colnames(team_df)[1:13])
+
+      team_df <- team_df %>%
+        dplyr::rename(
+          logo_href = .data$logos_href,
+          logo_dark_href = .data$logos_href_1)
+
+      df <- res %>%
+        httr::content(as = "text", encoding = "UTF-8") %>%
+        jsonlite::fromJSON() %>%
+        purrr::pluck("splits") %>%
+        purrr::pluck("categories") %>%
+        tidyr::unnest(.data$stats, names_sep="_")
+      df <- df %>%
+        dplyr::mutate(
+          stats_category_name = glue::glue("{.data$name}_{.data$stats_name}")) %>%
+        dplyr::select(.data$stats_category_name, .data$stats_value) %>%
+        tidyr::pivot_wider(names_from = .data$stats_category_name,
+                           values_from = .data$stats_value,
+                           values_fn = dplyr::first) %>%
+        janitor::clean_names()
+
+      df <- team_df %>%
+        dplyr::bind_cols(df)
+
+
+      df <- df %>%
+        make_hoopR_data("ESPN NBA Team Season Stats from ESPN.com",Sys.time())
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}:Invalid arguments or no team season stats data available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df)
+}
+
+#' @title
+#' **Get ESPN NBA player stats data**
+#' @author Saiem Gilani
+#' @param athlete_id Athlete ID
+#' @param year Year
+#' @param season_type (character, default: regular): Season type - regular or postseason
+#' @param total (boolean, default: FALSE): Totals
+#' @keywords NBA Player Stats
+#' @return Returns a tibble with the player stats data
+#'
+#' @examples
+#' \donttest{
+#'   try(espn_nba_player_stats(athlete_id = 4433134, year = 2022))
+#' }
+
+espn_nba_player_stats <- function(athlete_id, year, season_type='regular', total=FALSE){
+  if (!(tolower(season_type) %in% c("regular","postseason"))) {
+    # Check if season_type is appropriate, if not regular
+    cli::cli_abort("Enter valid season_type: regular or postseason")
+  }
+  s_type <- ifelse(season_type == "postseason", 3, 2)
+
+  base_url <- "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/"
+
+  totals <- ifelse(total == TRUE, 0, "")
+  full_url <- paste0(
+    base_url,
+    year,
+    '/types/',s_type,
+    '/athletes/', athlete_id,
+    '/statistics/', totals
+  )
+  athlete_url <- paste0(
+    base_url,
+    year,
+    '/athletes/', athlete_id
+  )
+  df <- data.frame()
+  tryCatch(
+    expr = {
+
+      # Create the GET request and set response as res
+      res <- httr::RETRY("GET", full_url)
+
+      # Check the result
+      check_status(res)
+      # Create the GET request and set response as res
+      athlete_res <- httr::RETRY("GET", athlete_url)
+
+      # Check the result
+      check_status(athlete_res)
+
+      athlete_df <- athlete_res %>%
+        httr::content(as = "text", encoding = "UTF-8") %>%
+        jsonlite::fromJSON(simplifyDataFrame = FALSE, simplifyVector = FALSE, simplifyMatrix = FALSE)
+
+      team_url <- athlete_df[["team"]][["$ref"]]
+
+      # Create the GET request and set response as res
+      team_res <- httr::RETRY("GET", team_url)
+
+      # Check the result
+      check_status(team_res)
+
+      team_df <- team_res %>%
+        httr::content(as = "text", encoding = "UTF-8") %>%
+        jsonlite::fromJSON(simplifyDataFrame = FALSE, simplifyVector = FALSE, simplifyMatrix = FALSE)
+
+      team_df[["links"]] <- NULL
+      team_df[["injuries"]] <- NULL
+      team_df[["record"]] <- NULL
+      team_df[["athletes"]] <- NULL
+      team_df[["venue"]] <- NULL
+      team_df[["groups"]] <- NULL
+      team_df[["ranks"]] <- NULL
+      team_df[["statistics"]] <- NULL
+      team_df[["leaders"]] <- NULL
+      team_df[["links"]] <- NULL
+      team_df[["notes"]] <- NULL
+      team_df[["franchise"]] <- NULL
+      team_df[["againstTheSpreadRecords"]] <- NULL
+      team_df[["oddsRecords"]] <- NULL
+      team_df[["college"]] <- NULL
+      team_df[["transactions"]] <- NULL
+      team_df[["leaders"]] <- NULL
+      team_df[["depthCharts"]] <- NULL
+      team_df[["awards"]] <- NULL
+      team_df[["events"]] <- NULL
+
+
+      team_df <- team_df %>%
+        purrr::map_if(is.list,as.data.frame) %>%
+        as.data.frame() %>%
+        dplyr::select(
+          -dplyr::any_of(
+            c("logos.width",
+              "logos.height",
+              "logos.alt",
+              "logos.rel..full.",
+              "logos.rel..default.",
+              "logos.rel..scoreboard.",
+              "logos.rel..scoreboard..1",
+              "logos.rel..scoreboard.2",
+              "logos.lastUpdated",
+              "logos.width.1",
+              "logos.height.1",
+              "logos.alt.1",
+              "logos.rel..full..1",
+              "logos.rel..dark.",
+              "logos.rel..dark..1",
+              "logos.lastUpdated.1",
+              "logos.width.2",
+              "logos.height.2",
+              "logos.alt.2",
+              "logos.rel..full..2",
+              "logos.rel..scoreboard.",
+              "logos.lastUpdated.2",
+              "logos.width.3",
+              "logos.height.3",
+              "logos.alt.3",
+              "logos.rel..full..3",
+              "logos.lastUpdated.3",
+              "X.ref",
+              "X.ref.1",
+              "X.ref.2"))) %>%
+        janitor::clean_names()
+      colnames(team_df)[1:13] <- paste0("team_",colnames(team_df)[1:13])
+
+      team_df <- team_df %>%
+        dplyr::rename(
+          logo_href = .data$logos_href,
+          logo_dark_href = .data$logos_href_1)
+
+
+      athlete_df[["links"]] <- NULL
+      athlete_df[["injuries"]] <- NULL
+      athlete_df[["birthPlace"]] <- NULL
+
+      athlete_df <- athlete_df %>%
+        purrr::map_if(is.list, as.data.frame) %>%
+        tibble::tibble(data=.data$.)
+      athlete_df <- athlete_df$data %>%
+        as.data.frame() %>%
+        dplyr::select(-dplyr::any_of(c("X.ref","X.ref.1","X.ref.2","X.ref.3","X.ref.4","X.ref.5","X.ref.6","X.ref.7","X.ref.8",
+                                       "position.X.ref","position.X.ref.1",
+                                       "contract.x.ref","contract.x.ref.1","contract.x.ref.2",
+                                       "draft.x.ref","draft.x.ref.1"))) %>%
+        janitor::clean_names() %>%
+        dplyr::rename(
+          athlete_id = .data$id,
+          athlete_uid = .data$uid,
+          athlete_guid = .data$guid,
+          athlete_type = .data$type)
+
+
+      # Get the content and return result as data.frame
+      df <- res %>%
+        httr::content(as = "text", encoding = "UTF-8") %>%
+        jsonlite::fromJSON() %>%
+        purrr::pluck("splits") %>%
+        purrr::pluck("categories") %>%
+        tidyr::unnest(.data$stats, names_sep="_")
+      df <- df %>%
+        dplyr::mutate(
+          stats_category_name = glue::glue("{.data$name}_{.data$stats_name}")) %>%
+        dplyr::select(.data$stats_category_name, .data$stats_value) %>%
+        tidyr::pivot_wider(names_from = .data$stats_category_name,
+                           values_from = .data$stats_value,
+                           values_fn = dplyr::first) %>%
+        janitor::clean_names()
+      df <- athlete_df %>%
+        dplyr::bind_cols(df) %>%
+        dplyr::bind_cols(team_df)
+      df <- df %>%
+        make_hoopR_data("ESPN NBA Player Season Stats from ESPN.com",Sys.time())
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}:Invalid arguments or no player season stats data available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df)
 }

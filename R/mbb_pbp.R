@@ -32,18 +32,18 @@ load_mbb_pbp <- function(seasons = most_recent_mbb_season(),...,
             seasons >= 2006,
             seasons <= most_recent_mbb_season())
 
-  urls <- paste0("https://raw.githubusercontent.com/saiemgilani/hoopR-data/master/mbb/pbp/rds/play_by_play_",seasons,".rds")
+  urls <- paste0("https://raw.githubusercontent.com/sportsdataverse/hoopR-data/main/mbb/pbp/rds/play_by_play_",seasons,".rds")
 
   p <- NULL
   if (is_installed("progressr")) p <- progressr::progressor(along = seasons)
 
   out <- lapply(urls, progressively(loader, p))
-  out <- data.table::rbindlist(out, use.names = TRUE, fill = TRUE)
+  out <- rbindlist_with_attrs(out)
   if (in_db) {
     DBI::dbWriteTable(dbConnection, tablename, out, append = TRUE)
     out <- NULL
   } else {
-    class(out) <- c("tbl_df","tbl","data.table","data.frame")
+    class(out) <- c("hoopR_data","tbl_df","tbl","data.table","data.frame")
   }
   out
 }
@@ -81,18 +81,18 @@ load_mbb_team_box <- function(seasons = most_recent_mbb_season(), ...,
             seasons >= 2003,
             seasons <= most_recent_mbb_season())
 
-  urls <- paste0("https://raw.githubusercontent.com/saiemgilani/hoopR-data/master/mbb/team_box/rds/team_box_",seasons,".rds")
+  urls <- paste0("https://raw.githubusercontent.com/sportsdataverse/hoopR-data/main/mbb/team_box/rds/team_box_",seasons,".rds")
 
   p <- NULL
   if (is_installed("progressr")) p <- progressr::progressor(along = seasons)
 
   out <- lapply(urls, progressively(loader, p))
-  out <- data.table::rbindlist(out, use.names = TRUE, fill = TRUE)
+  out <- rbindlist_with_attrs(out)
   if (in_db) {
     DBI::dbWriteTable(dbConnection, tablename, out, append = TRUE)
     out <- NULL
   } else {
-    class(out) <- c("tbl_df","tbl","data.table","data.frame")
+    class(out) <- c("hoopR_data","tbl_df","tbl","data.table","data.frame")
   }
   out
 }
@@ -131,18 +131,18 @@ load_mbb_player_box <- function(seasons = most_recent_mbb_season(), ...,
             seasons >= 2003,
             seasons <= most_recent_mbb_season())
 
-  urls <- paste0("https://raw.githubusercontent.com/saiemgilani/hoopR-data/master/mbb/player_box/rds/player_box_",seasons,".rds")
+  urls <- paste0("https://raw.githubusercontent.com/sportsdataverse/hoopR-data/main/mbb/player_box/rds/player_box_",seasons,".rds")
 
   p <- NULL
   if (is_installed("progressr")) p <- progressr::progressor(along = seasons)
 
   out <- lapply(urls, progressively(loader, p))
-  out <- data.table::rbindlist(out, use.names = TRUE, fill = TRUE)
+  out <- rbindlist_with_attrs(out)
   if (in_db) {
     DBI::dbWriteTable(dbConnection, tablename, out, append = TRUE)
     out <- NULL
   } else {
-    class(out) <- c("tbl_df","tbl","data.table","data.frame")
+    class(out) <- c("hoopR_data","tbl_df","tbl","data.table","data.frame")
   }
   out
 }
@@ -181,25 +181,25 @@ load_mbb_schedule <- function(seasons = most_recent_mbb_season(), ...,
             seasons >= 2002,
             seasons <= most_recent_mbb_season())
 
-  urls <- paste0("https://raw.githubusercontent.com/saiemgilani/hoopR-data/master/mbb/schedules/rds/mbb_schedule_",seasons,".rds")
+  urls <- paste0("https://raw.githubusercontent.com/sportsdataverse/hoopR-data/main/mbb/schedules/rds/mbb_schedule_",seasons,".rds")
 
   p <- NULL
   if (is_installed("progressr")) p <- progressr::progressor(along = seasons)
 
   out <- lapply(urls, progressively(loader, p))
-  out <- data.table::rbindlist(out, use.names = TRUE, fill = TRUE)
+  out <- rbindlist_with_attrs(out)
   if (in_db) {
     DBI::dbWriteTable(dbConnection, tablename, out, append = TRUE)
     out <- NULL
   } else {
-    class(out) <- c("tbl_df","tbl","data.table","data.frame")
+    class(out) <- c("hoopR_data","tbl_df","tbl","data.table","data.frame")
   }
   out
 }
 
 # load games file
 load_mbb_games <- function(){
-  .url <- "https://raw.githubusercontent.com/saiemgilani/hoopR-data/master/mbb/mbb_games_in_data_repo.csv"
+  .url <- "https://raw.githubusercontent.com/sportsdataverse/hoopR-data/main/mbb/mbb_games_in_data_repo.csv"
   dat <- hoopR::csv_from_url(.url)
   # close(con)
   return (dat)

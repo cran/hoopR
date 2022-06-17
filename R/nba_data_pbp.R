@@ -24,13 +24,15 @@ nba_data_pbp <- function(game_id = "0021900001"){
     substr(game_id, 1, 2)=='20' ~ 'dleague',
     TRUE ~ 'NBA'
   )
-  full_url <- glue::glue("https://data.{league}.com/data/v2015/json/mobile_teams/{league}/{season}/scores/pbp/{game_id}_full_pbp.json")
-  res <- httr::RETRY("GET", full_url)
+  full_url <- glue::glue("https://data.nba.com/data/v2015/json/mobile_teams/{league}/{season}/scores/pbp/{game_id}_full_pbp.json")
 
-  # Check the result
-  check_status(res)
   tryCatch(
     expr={
+      res <- httr::RETRY("GET", full_url)
+
+      # Check the result
+      check_status(res)
+
       resp <- res %>%
         httr::content(as = "text", encoding = "UTF-8")
 
@@ -42,7 +44,8 @@ nba_data_pbp <- function(game_id = "0021900001"){
         plays_df <- plays[[2]][[x]] %>%
           dplyr::mutate(period = x) %>%
           dplyr::select(.data$period, tidyr::everything())
-      })
+      }) %>%
+        make_hoopR_data("NBA Play-by-Play Information from NBA.com",Sys.time())
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no play-by-play data for {game_id} available!"))

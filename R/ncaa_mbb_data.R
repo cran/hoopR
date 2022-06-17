@@ -1,4 +1,4 @@
-#' Get men's college basketball NET rankings for the current date from the NCAA website
+#' **Get men's college basketball NET rankings for the current date from the NCAA website**
 #'
 #' @author Saiem Gilani
 #' @return Returns a tibble
@@ -26,7 +26,8 @@ ncaa_mbb_NET_rankings <- function(){
       Quad_3 = .data$`Quad 3`,
       Quad_4 = .data$`Quad 4`
     ) %>%
-    janitor::clean_names()
+    janitor::clean_names() %>%
+    make_hoopR_data("NCAA MBB NET Rankings Information from ESPN.com",Sys.time())
 
   return(x)
 }
