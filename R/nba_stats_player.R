@@ -1,422 +1,10 @@
-#' **Get NBA Stats API Player Awards**
-#' @name playerawards
-NULL
-#' @title
-#' **Get NBA Stats API Player Awards**
-#' @rdname playerawards
-#' @author Saiem Gilani
-#' @param player_id Player ID
-#' @return Return a named list of data frames: PlayerAwards
-#' @importFrom jsonlite fromJSON toJSON
-#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
-#' @import rvest
-#' @export
-nba_playerawards <- function(player_id){
-
-  version <- "playerawards"
-  endpoint <- nba_endpoint(version)
-
-  full_url <- paste0(endpoint,
-                     "?PlayerID=",pad_id(player_id))
-  tryCatch(
-    expr = {
-      resp <- full_url %>%
-        .nba_headers()
-
-      df_list <- purrr::map(1:length(resp$resultSets$name), function(x){
-        data <- resp$resultSets$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
-
-        json_names <- resp$resultSets$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSets$name
-    },
-    error = function(e) {
-      message(glue::glue("{Sys.time()}: Invalid arguments or no player awards data for {player_id} available!"))
-    },
-    warning = function(w) {
-    },
-    finally = {
-    }
-  )
-  return(df_list)
-}
-
-#' **Get NBA Stats API Player Career By College**
-#' @name pcareerbycollege
-NULL
-#' @title
-#' **Get NBA Stats API Player Career By College**
-#' @rdname pcareerbycollege
-#' @author Saiem Gilani
-#' @param college College Name
-#' @param season Season - format 2020-21
-#' @param season_type Season Type - Regular Season, Playoffs, All-Star
-#' @param per_mode Per Mode - PerGame, Totals
-#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
-#' @return Return a named list of data frames: PlayerCareerByCollege
-#' @importFrom jsonlite fromJSON toJSON
-#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
-#' @import rvest
-#' @export
-nba_playercareerbycollege <- function(college = 'Florida State',
-                                      league_id = '00',
-                                      per_mode = 'Totals',
-                                      season='2020-21',
-                                      season_type='Regular Season'){
-  college <- gsub(' ','+',college)
-  season_type <- gsub(' ','+',season_type)
-  version <- "playercareerbycollege"
-  endpoint <- nba_endpoint(version)
-
-  full_url <- paste0(endpoint,
-                     "?College=",college,
-                     "&LeagueID=", league_id,
-                     "&PerMode=", per_mode,
-                     "&Season=",season,
-                     "&SeasonType=",season_type)
-  tryCatch(
-    expr = {
-      resp <- full_url %>%
-        .nba_headers()
-
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
-
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
-    },
-    error = function(e) {
-      message(glue::glue("{Sys.time()}: Invalid arguments or player careers by college data for {player_id} available!"))
-    },
-    warning = function(w) {
-    },
-    finally = {
-    }
-  )
-  return(df_list)
-}
-
-
-#' **Get NBA Stats API Player Career By College Rollup**
-#' @name pcareerbycollege_ru
-NULL
-#' @title
-#' **Get NBA Stats API Player Career By College Rollup**
-#' @rdname pcareerbycollege_ru
-#' @author Saiem Gilani
-#' @param season Season - format 2020-21
-#' @param season_type Season Type - Regular Season, Playoffs, All-Star
-#' @param per_mode Per Mode - PerGame, Totals
-#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
-#' @return Return a named list of data frames: East, Midwest, South, West
-#' @importFrom jsonlite fromJSON toJSON
-#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
-#' @import rvest
-#' @export
-nba_playercareerbycollegerollup <- function(league_id = '00',
-                                            per_mode = 'Totals',
-                                            season='2020-21',
-                                            season_type='Regular Season'){
-
-  season_type <- gsub(' ','+',season_type)
-  version <- "playercareerbycollegerollup"
-  endpoint <- nba_endpoint(version)
-
-  full_url <- paste0(endpoint,
-                     "?LeagueID=", league_id,
-                     "&PerMode=", per_mode,
-                     "&Season=",season,
-                     "&SeasonType=",season_type)
-  tryCatch(
-    expr = {
-      resp <- full_url %>%
-        .nba_headers()
-
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
-
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
-    },
-    error = function(e) {
-      message(glue::glue("{Sys.time()}: Invalid arguments or player careers by college rollup data for {season} available!"))
-    },
-    warning = function(w) {
-    },
-    finally = {
-    }
-  )
-  return(df_list)
-}
-
-
-#' **Get NBA Stats API Player Career Stats**
-#' @name playercareerstats
-NULL
-#' @title
-#' **Get NBA Stats API Player Career Stats**
-#' @rdname playercareerstats
-#' @author Saiem Gilani
-#' @param player_id Player ID
-#' @param per_mode Per Mode - PerGame, Totals
-#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
-#' @return Return a named list of data frames: CareerTotalsAllStarSeason, CareerTotalsCollegeSeason, CareerTotalsPostSeason,
-#' CareerTotalsRegularSeason, SeasonRankingsPostSeason, SeasonRankingsRegularSeason, SeasonTotalsAllStarSeason, SeasonTotalsCollegeSeason,
-#' SeasonTotalsPostSeason, SeasonTotalsRegularSeason
-#' @importFrom jsonlite fromJSON toJSON
-#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
-#' @import rvest
-#' @export
-nba_playercareerstats <- function(league_id = '00',
-                                  per_mode = 'Totals',
-                                  player_id='2544'){
-
-
-  version <- "playercareerstats"
-  endpoint <- nba_endpoint(version)
-
-  full_url <- paste0(endpoint,
-                     "?LeagueID=", league_id,
-                     "&PerMode=", per_mode,
-                     "&PlayerID=",player_id)
-  tryCatch(
-    expr = {
-      resp <- full_url %>%
-        .nba_headers()
-
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
-
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
-    },
-    error = function(e) {
-      message(glue::glue("{Sys.time()}: Invalid arguments or player career stats data for {player_id} available!"))
-    },
-    warning = function(w) {
-    },
-    finally = {
-    }
-  )
-  return(df_list)
-}
-
-#' **Get NBA Stats API Player Fantasy Profile**
-#' @name pfantasy
-NULL
-#' @title
-#' **Get NBA Stats API Player Fantasy Profile**
-#' @rdname pfantasy
-#' @author Saiem Gilani
-#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
-#' @param measure_type measure_type
-#' @param player_id Player ID
-#' @param per_mode Per Mode - PerGame, Totals
-#' @param pace_adjust Pace Adjustment - Y/N
-#' @param plus_minus Plus Minus - Y/N
-#' @param rank Rank - Y/N
-#' @param season Season - format 2020-21
-#' @param season_type Season Type - Regular Season, Playoffs, All-Star
-#' @return Return a named list of data frames: DaysRestModified, LastNGames, Location, Opponent, Overall
-#' @importFrom jsonlite fromJSON toJSON
-#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
-#' @import rvest
-#' @export
-nba_playerfantasyprofile <- function(league_id = '00',
-                                     measure_type='Base',
-                                     pace_adjust='N',
-                                     per_mode='Totals',
-                                     player_id='2544',
-                                     plus_minus='N',
-                                     rank='N',
-                                     season='2020-21',
-                                     season_type='Regular Season'){
-
-  season_type <- gsub(' ','+',season_type)
-  version <- "playerfantasyprofile"
-  endpoint <- nba_endpoint(version)
-
-  full_url <- paste0(endpoint,
-                     "?LeagueID=", league_id,
-                     "&MeasureType=", measure_type,
-                     "&PaceAdjust=", pace_adjust,
-                     "&PerMode=", per_mode,
-                     "&PlayerID=",player_id,
-                     "&PlusMinus=", plus_minus,
-                     "&Rank=", rank,
-                     "&Season=",season,
-                     "&SeasonType=",season_type)
-
-  tryCatch(
-    expr = {
-      resp <- full_url %>%
-        .nba_headers()
-
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
-
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
-    },
-    error = function(e) {
-      message(glue::glue("{Sys.time()}: Invalid arguments or no player fantasy profile data for {player_id} available!"))
-    },
-    warning = function(w) {
-    },
-    finally = {
-    }
-  )
-  return(df_list)
-}
-
-
-
-#' **Get NBA Stats API Player Fantasy Profile Bar Graph**
-#' @name pfantasy_bg
-NULL
-#' @title
-#' **Get NBA Stats API Player Fantasy Profile Bar Graph**
-#' @rdname pfantasy_bg
-#' @author Saiem Gilani
-#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
-#' @param player_id Player ID
-#' @param season Season - format 2020-21
-#' @param season_type Season Type - Regular Season, Playoffs, All-Star
-#' @return Return a named list of data frames: LastFiveGamesAvg, SeasonAvg
-#' @importFrom jsonlite fromJSON toJSON
-#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
-#' @import rvest
-#' @export
-nba_playerfantasyprofilebargraph <- function(league_id = '00',
-                                             player_id='2544',
-                                             season='2020-21',
-                                             season_type='Regular Season'){
-
-  season_type <- gsub(' ','+',season_type)
-  version <- "playerfantasyprofilebargraph"
-  endpoint <- nba_endpoint(version)
-
-  full_url <- paste0(endpoint,
-                     "?LeagueID=", league_id,
-                     "&PlayerID=",player_id,
-                     "&Season=",season,
-                     "&SeasonType=",season_type)
-
-  tryCatch(
-    expr = {
-      resp <- full_url %>%
-        .nba_headers()
-
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
-
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
-
-    },
-    error = function(e) {
-      message(glue::glue("{Sys.time()}: Invalid arguments or no player fantasy profile bar graph data for {player_id} available!"))
-    },
-    warning = function(w) {
-    },
-    finally = {
-    }
-  )
-  return(df_list)
-}
-
-
-#' **Get NBA Stats API Player Estimated Metrics**
-#' @name p_est_metr
-NULL
-#' @title
-#' **Get NBA Stats API Player Estimated Metrics**
-#' @rdname p_est_metr
-#' @author Saiem Gilani
-#' @param season Season - format 2020-21
-#' @param season_type Season Type - Regular Season, Playoffs, All-Star
-#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
-#' @return Return a named list of data frames: PlayerEstimatedMetrics
-#' @importFrom jsonlite fromJSON toJSON
-#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
-#' @import rvest
-#' @export
-nba_playerestimatedmetrics <- function(league_id = '00',
-                                       season='2020-21',
-                                       season_type='Regular Season'){
-
-  season_type <- gsub(' ','+',season_type)
-  version <- "playerestimatedmetrics"
-  endpoint <- nba_endpoint(version)
-
-  full_url <- paste0(endpoint,
-                     "?LeagueID=", league_id,
-                     "&Season=",season,
-                     "&SeasonType=",season_type)
-
-  tryCatch(
-    expr = {
-      resp <- full_url %>%
-        .nba_headers()
-
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
-
-        json_names <- resp$resultSet$headers
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
-
-    },
-    error = function(e) {
-      message(glue::glue("{Sys.time()}: Invalid arguments or no player estimated metrics data for {player_id} available!"))
-    },
-    warning = function(w) {
-    },
-    finally = {
-    }
-  )
-  return(df_list)
-}
 
 #' **Get NBA Stats API Player Index**
-#' @name p_index
+#' @name nba_playerindex
 NULL
 #' @title
 #' **Get NBA Stats API Player Index**
-#' @rdname p_index
+#' @rdname nba_playerindex
 #' @author Saiem Gilani
 #' @param college Player College
 #' @param country Player Country
@@ -430,58 +18,93 @@ NULL
 #' @param season_type Season Type - Regular Season, Playoffs, All-Star
 #' @param team_id Team ID. Default: 0 (all teams).
 #' @param weight Player weight
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Return a named list of data frames: PlayerIndex
+#'
+#'    **PlayerIndex**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PERSON_ID         |character |
+#'    |PLAYER_LAST_NAME  |character |
+#'    |PLAYER_FIRST_NAME |character |
+#'    |PLAYER_SLUG       |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_SLUG         |character |
+#'    |IS_DEFUNCT        |character |
+#'    |TEAM_CITY         |character |
+#'    |TEAM_NAME         |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |JERSEY_NUMBER     |character |
+#'    |POSITION          |character |
+#'    |HEIGHT            |character |
+#'    |WEIGHT            |character |
+#'    |COLLEGE           |character |
+#'    |COUNTRY           |character |
+#'    |DRAFT_YEAR        |character |
+#'    |DRAFT_ROUND       |character |
+#'    |DRAFT_NUMBER      |character |
+#'    |ROSTER_STATUS     |character |
+#'    |PTS               |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |STATS_TIMEFRAME   |character |
+#'    |FROM_YEAR         |character |
+#'    |TO_YEAR           |character |
+#'
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
+#' @family NBA Player Functions
+#' @details
+#' [Player Index](https://www.nba.com/stats/players)
+#' ```r
+#'  nba_playerindex()
+#' ```
 nba_playerindex <- function(
-  college = '',
-  country = '',
-  draft_pick = '',
-  draft_round='',
-  draft_year='',
-  height = '',
-  historical = 1,
-  league_id = '00',
-  season='2020-21',
-  season_type='Regular Season',
-  team_id = '0',
-  weight = ''){
+    college = '',
+    country = '',
+    draft_pick = '',
+    draft_round = '',
+    draft_year = '',
+    height = '',
+    historical = 1,
+    league_id = '00',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_type = 'Regular Season',
+    team_id = '0',
+    weight = '',
+    ...){
 
-  season_type <- gsub(' ','+',season_type)
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
   version <- "playerindex"
   endpoint <- nba_endpoint(version)
+  full_url <- endpoint
 
-  full_url <- paste0(endpoint,
-                     "?College=", college,
-                     "&Country=", country,
-                     "&DraftPick=", draft_pick,
-                     "&DraftRound=", draft_round,
-                     "&DraftYear=", draft_year,
-                     "&Height=", height,
-                     "&Historical=", historical,
-                     "&LeagueID=", league_id,
-                     "&Season=", season,
-                     "&SeasonType=",season_type,
-                     "&TeamID=", team_id,
-                     "&Weight=", weight)
+  params <- list(
+    College = college,
+    Country = country,
+    DraftPick = draft_pick,
+    DraftRound = draft_round,
+    DraftYear = draft_year,
+    Height = height,
+    Historical = historical,
+    LeagueID = league_id,
+    Season = season,
+    SeasonType = season_type,
+    TeamID = team_id,
+    Weight = weight
+  )
 
   tryCatch(
     expr = {
-      resp <- full_url %>%
-        .nba_headers()
 
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
+      resp <- request_with_proxy(url = full_url, params = params, ...)
 
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
+      df_list <- nba_stats_map_result_sets(resp)
 
     },
     error = function(e) {
@@ -496,19 +119,28 @@ nba_playerindex <- function(
 }
 
 #' **Get NBA Stats API Player Head-shot**
-#' @name p_headshot
+#' @name nba_playerheadshot
 NULL
 #' @title
 #' **Get NBA Stats API Player Head-shot**
-#' @rdname p_headshot
+#' @rdname nba_playerheadshot
 #' @author Saiem Gilani
 #' @param player_id Player ID
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Returns a url of the png for the player_id selected
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
-nba_playerheadshot <- function(player_id= '2544'){
+#' @family NBA Player Functions
+#' @details
+#' [Player Headshot](https://cdn.nba.com/headshots/nba/latest/260x190/2544.png)
+#' ```r
+#'  nba_playerheadshot(player_id = '2544')
+#' ```
+nba_playerheadshot <- function(
+    player_id = '2544',
+    ...){
 
   endpoint <- "https://cdn.nba.com/headshots/nba/latest/260x190/"
 
@@ -530,12 +162,1265 @@ nba_playerheadshot <- function(player_id= '2544'){
   return(resp)
 }
 
+#' **Get NBA Stats API Player Awards**
+#' @name nba_playerawards
+NULL
+#' @title
+#' **Get NBA Stats API Player Awards**
+#' @rdname nba_playerawards
+#' @author Saiem Gilani
+#' @param player_id Player ID
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: PlayerAwards
+#'
+#'    **PlayerAwards**
+#'
+#'
+#'    |col_name            |types     |
+#'    |:-------------------|:---------|
+#'    |PERSON_ID           |character |
+#'    |FIRST_NAME          |character |
+#'    |LAST_NAME           |character |
+#'    |TEAM                |character |
+#'    |DESCRIPTION         |character |
+#'    |ALL_NBA_TEAM_NUMBER |character |
+#'    |SEASON              |character |
+#'    |MONTH               |character |
+#'    |WEEK                |character |
+#'    |CONFERENCE          |character |
+#'    |TYPE                |character |
+#'    |SUBTYPE1            |character |
+#'    |SUBTYPE2            |character |
+#'    |SUBTYPE3            |character |
+#'
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
+#' @import rvest
+#' @export
+#' @family NBA Player Functions
+#' @details
+#' [Player Awards](https://www.nba.com/stats/player/2544/career)
+#' ```r
+#'  nba_playerawards(player_id = '2544')
+#' ```
+nba_playerawards <- function(
+    player_id,
+    ...){
+
+  version <- "playerawards"
+  endpoint <- nba_endpoint(version)
+  full_url <- endpoint
+
+  params <- list(
+    PlayerID = player_id
+  )
+
+  tryCatch(
+    expr = {
+
+      resp <- request_with_proxy(url = full_url, params = params, ...)
+
+      df_list <- nba_stats_map_result_sets(resp)
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}: Invalid arguments or no player awards data for {player_id} available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df_list)
+}
+
+#' **Get NBA Stats API Player Career By College**
+#' @name nba_playercareerbycollege
+NULL
+#' @title
+#' **Get NBA Stats API Player Career By College**
+#' @rdname nba_playercareerbycollege
+#' @author Saiem Gilani
+#' @param college College Name
+#' @param season Season - format 2020-21
+#' @param season_type Season Type - Regular Season, Playoffs, All-Star
+#' @param per_mode Per Mode - PerGame, Totals
+#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: PlayerCareerByCollege
+#'
+#'    **PlayerCareerByCollege**
+#'
+#'
+#'    |col_name    |types     |
+#'    |:-----------|:---------|
+#'    |PLAYER_ID   |character |
+#'    |PLAYER_NAME |character |
+#'    |COLLEGE     |character |
+#'    |GP          |character |
+#'    |MIN         |character |
+#'    |FGM         |character |
+#'    |FGA         |character |
+#'    |FG_PCT      |character |
+#'    |FG3M        |character |
+#'    |FG3A        |character |
+#'    |FG3_PCT     |character |
+#'    |FTM         |character |
+#'    |FTA         |character |
+#'    |FT_PCT      |character |
+#'    |OREB        |character |
+#'    |DREB        |character |
+#'    |REB         |character |
+#'    |AST         |character |
+#'    |TOV         |character |
+#'    |STL         |character |
+#'    |BLK         |character |
+#'    |PF          |character |
+#'    |PTS         |character |
+#'
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
+#' @import rvest
+#' @export
+#' @family NBA Player Functions
+#' @details
+#' ```r
+#'  nba_playercareerbycollege(college = 'Florida State', per_mode = 'PerGame')
+#' ```
+nba_playercareerbycollege <- function(
+    college = 'Florida State',
+    league_id = '00',
+    per_mode = 'Totals',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_type = 'Regular Season',
+    ...){
+
+  # college <- gsub(' ', '+', college)
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
+  version <- "playercareerbycollege"
+  endpoint <- nba_endpoint(version)
+  full_url <- endpoint
+
+  params <- list(
+    College = college,
+    LeagueID = league_id,
+    PerMode = per_mode,
+    Season = season,
+    SeasonType = season_type
+  )
+
+  tryCatch(
+    expr = {
+
+      resp <- request_with_proxy(url = full_url, params = params, ...)
+
+      df_list <- nba_stats_map_result_sets(resp)
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}: Invalid arguments or player careers by college data for {player_id} available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df_list)
+}
+
+
+#' **Get NBA Stats API Player Career By College Rollup**
+#' @name nba_playercareerbycollegerollup
+NULL
+#' @title
+#' **Get NBA Stats API Player Career By College Rollup**
+#' @rdname nba_playercareerbycollegerollup
+#' @author Saiem Gilani
+#' @param season Season - format 2020-21
+#' @param season_type Season Type - Regular Season, Playoffs, All-Star
+#' @param per_mode Per Mode - PerGame, Totals
+#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: East, Midwest, South, West
+#'
+#'    **East**
+#'
+#'
+#'    |col_name |types     |
+#'    |:--------|:---------|
+#'    |REGION   |character |
+#'    |SEED     |character |
+#'    |COLLEGE  |character |
+#'    |PLAYERS  |character |
+#'    |GP       |character |
+#'    |MIN      |character |
+#'    |FGM      |character |
+#'    |FGA      |character |
+#'    |FG_PCT   |character |
+#'    |FG3M     |character |
+#'    |FG3A     |character |
+#'    |FG3_PCT  |character |
+#'    |FTM      |character |
+#'    |FTA      |character |
+#'    |FT_PCT   |character |
+#'    |OREB     |character |
+#'    |DREB     |character |
+#'    |REB      |character |
+#'    |AST      |character |
+#'    |STL      |character |
+#'    |BLK      |character |
+#'    |TOV      |character |
+#'    |PF       |character |
+#'    |PTS      |character |
+#'
+#'    **South**
+#'
+#'
+#'    |col_name |types     |
+#'    |:--------|:---------|
+#'    |REGION   |character |
+#'    |SEED     |character |
+#'    |COLLEGE  |character |
+#'    |PLAYERS  |character |
+#'    |GP       |character |
+#'    |MIN      |character |
+#'    |FGM      |character |
+#'    |FGA      |character |
+#'    |FG_PCT   |character |
+#'    |FG3M     |character |
+#'    |FG3A     |character |
+#'    |FG3_PCT  |character |
+#'    |FTM      |character |
+#'    |FTA      |character |
+#'    |FT_PCT   |character |
+#'    |OREB     |character |
+#'    |DREB     |character |
+#'    |REB      |character |
+#'    |AST      |character |
+#'    |STL      |character |
+#'    |BLK      |character |
+#'    |TOV      |character |
+#'    |PF       |character |
+#'    |PTS      |character |
+#'
+#'    **Midwest**
+#'
+#'
+#'    |col_name |types     |
+#'    |:--------|:---------|
+#'    |REGION   |character |
+#'    |SEED     |character |
+#'    |COLLEGE  |character |
+#'    |PLAYERS  |character |
+#'    |GP       |character |
+#'    |MIN      |character |
+#'    |FGM      |character |
+#'    |FGA      |character |
+#'    |FG_PCT   |character |
+#'    |FG3M     |character |
+#'    |FG3A     |character |
+#'    |FG3_PCT  |character |
+#'    |FTM      |character |
+#'    |FTA      |character |
+#'    |FT_PCT   |character |
+#'    |OREB     |character |
+#'    |DREB     |character |
+#'    |REB      |character |
+#'    |AST      |character |
+#'    |STL      |character |
+#'    |BLK      |character |
+#'    |TOV      |character |
+#'    |PF       |character |
+#'    |PTS      |character |
+#'
+#'    **West**
+#'
+#'
+#'    |col_name |types     |
+#'    |:--------|:---------|
+#'    |REGION   |character |
+#'    |SEED     |character |
+#'    |COLLEGE  |character |
+#'    |PLAYERS  |character |
+#'    |GP       |character |
+#'    |MIN      |character |
+#'    |FGM      |character |
+#'    |FGA      |character |
+#'    |FG_PCT   |character |
+#'    |FG3M     |character |
+#'    |FG3A     |character |
+#'    |FG3_PCT  |character |
+#'    |FTM      |character |
+#'    |FTA      |character |
+#'    |FT_PCT   |character |
+#'    |OREB     |character |
+#'    |DREB     |character |
+#'    |REB      |character |
+#'    |AST      |character |
+#'    |STL      |character |
+#'    |BLK      |character |
+#'    |TOV      |character |
+#'    |PF       |character |
+#'    |PTS      |character |
+#'
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
+#' @import rvest
+#' @export
+#' @family NBA Player Functions
+#' @details
+#' ```r
+#'  nba_playercareerbycollegerollup(per_mode = 'Totals')
+#' ```
+nba_playercareerbycollegerollup <- function(
+    league_id = '00',
+    per_mode = 'Totals',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_type = 'Regular Season',
+    ...){
+
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
+  version <- "playercareerbycollegerollup"
+  endpoint <- nba_endpoint(version)
+  full_url <- endpoint
+
+  params <- list(
+    LeagueID = league_id,
+    PerMode = per_mode,
+    Season = season,
+    SeasonType = season_type
+  )
+
+  tryCatch(
+    expr = {
+
+      resp <- request_with_proxy(url = full_url, params = params, ...)
+
+      df_list <- nba_stats_map_result_sets(resp)
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}: Invalid arguments or player careers by college rollup data for {season} available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df_list)
+}
+
+
+#' **Get NBA Stats API Player Career Stats**
+#' @name nba_playercareerstats
+NULL
+#' @title
+#' **Get NBA Stats API Player Career Stats**
+#' @rdname nba_playercareerstats
+#' @author Saiem Gilani
+#' @param player_id Player ID
+#' @param per_mode Per Mode - PerGame, Totals
+#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: CareerTotalsAllStarSeason,
+#' CareerTotalsCollegeSeason, CareerTotalsPostSeason,
+#' CareerTotalsRegularSeason, SeasonRankingsPostSeason,
+#' SeasonRankingsRegularSeason, SeasonTotalsAllStarSeason, SeasonTotalsCollegeSeason,
+#' SeasonTotalsPostSeason, SeasonTotalsRegularSeason
+#'
+#'    **SeasonTotalsRegularSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |MIN               |character |
+#'    |FGM               |character |
+#'    |FGA               |character |
+#'    |FG_PCT            |character |
+#'    |FG3M              |character |
+#'    |FG3A              |character |
+#'    |FG3_PCT           |character |
+#'    |FTM               |character |
+#'    |FTA               |character |
+#'    |FT_PCT            |character |
+#'    |OREB              |character |
+#'    |DREB              |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |PF                |character |
+#'    |PTS               |character |
+#'
+#'    **CareerTotalsRegularSeason**
+#'
+#'
+#'    |col_name  |types     |
+#'    |:---------|:---------|
+#'    |PLAYER_ID |character |
+#'    |LEAGUE_ID |character |
+#'    |Team_ID   |character |
+#'    |GP        |character |
+#'    |GS        |character |
+#'    |MIN       |character |
+#'    |FGM       |character |
+#'    |FGA       |character |
+#'    |FG_PCT    |character |
+#'    |FG3M      |character |
+#'    |FG3A      |character |
+#'    |FG3_PCT   |character |
+#'    |FTM       |character |
+#'    |FTA       |character |
+#'    |FT_PCT    |character |
+#'    |OREB      |character |
+#'    |DREB      |character |
+#'    |REB       |character |
+#'    |AST       |character |
+#'    |STL       |character |
+#'    |BLK       |character |
+#'    |TOV       |character |
+#'    |PF        |character |
+#'    |PTS       |character |
+#'
+#'    **SeasonTotalsPostSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |MIN               |character |
+#'    |FGM               |character |
+#'    |FGA               |character |
+#'    |FG_PCT            |character |
+#'    |FG3M              |character |
+#'    |FG3A              |character |
+#'    |FG3_PCT           |character |
+#'    |FTM               |character |
+#'    |FTA               |character |
+#'    |FT_PCT            |character |
+#'    |OREB              |character |
+#'    |DREB              |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |PF                |character |
+#'    |PTS               |character |
+#'
+#'    **CareerTotalsPostSeason**
+#'
+#'
+#'    |col_name  |types     |
+#'    |:---------|:---------|
+#'    |PLAYER_ID |character |
+#'    |LEAGUE_ID |character |
+#'    |Team_ID   |character |
+#'    |GP        |character |
+#'    |GS        |character |
+#'    |MIN       |character |
+#'    |FGM       |character |
+#'    |FGA       |character |
+#'    |FG_PCT    |character |
+#'    |FG3M      |character |
+#'    |FG3A      |character |
+#'    |FG3_PCT   |character |
+#'    |FTM       |character |
+#'    |FTA       |character |
+#'    |FT_PCT    |character |
+#'    |OREB      |character |
+#'    |DREB      |character |
+#'    |REB       |character |
+#'    |AST       |character |
+#'    |STL       |character |
+#'    |BLK       |character |
+#'    |TOV       |character |
+#'    |PF        |character |
+#'    |PTS       |character |
+#'
+#'    **SeasonTotalsAllStarSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |MIN               |character |
+#'    |FGM               |character |
+#'    |FGA               |character |
+#'    |FG_PCT            |character |
+#'    |FG3M              |character |
+#'    |FG3A              |character |
+#'    |FG3_PCT           |character |
+#'    |FTM               |character |
+#'    |FTA               |character |
+#'    |FT_PCT            |character |
+#'    |OREB              |character |
+#'    |DREB              |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |PF                |character |
+#'    |PTS               |character |
+#'
+#'    **CareerTotalsAllStarSeason**
+#'
+#'
+#'    |col_name  |types     |
+#'    |:---------|:---------|
+#'    |PLAYER_ID |character |
+#'    |LEAGUE_ID |character |
+#'    |Team_ID   |character |
+#'    |GP        |character |
+#'    |GS        |character |
+#'    |MIN       |character |
+#'    |FGM       |character |
+#'    |FGA       |character |
+#'    |FG_PCT    |character |
+#'    |FG3M      |character |
+#'    |FG3A      |character |
+#'    |FG3_PCT   |character |
+#'    |FTM       |character |
+#'    |FTA       |character |
+#'    |FT_PCT    |character |
+#'    |OREB      |character |
+#'    |DREB      |character |
+#'    |REB       |character |
+#'    |AST       |character |
+#'    |STL       |character |
+#'    |BLK       |character |
+#'    |TOV       |character |
+#'    |PF        |character |
+#'    |PTS       |character |
+#'
+#'    **SeasonTotalsCollegeSeason**
+#'
+#'    **CareerTotalsCollegeSeason**
+#'
+#'    **SeasonTotalsShowcaseSeason**
+#'
+#'    **CareerTotalsShowcaseSeason**
+#'
+#'    **SeasonRankingsRegularSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |RANK_MIN          |character |
+#'    |RANK_FGM          |character |
+#'    |RANK_FGA          |character |
+#'    |RANK_FG_PCT       |character |
+#'    |RANK_FG3M         |character |
+#'    |RANK_FG3A         |character |
+#'    |RANK_FG3_PCT      |character |
+#'    |RANK_FTM          |character |
+#'    |RANK_FTA          |character |
+#'    |RANK_FT_PCT       |character |
+#'    |RANK_OREB         |character |
+#'    |RANK_DREB         |character |
+#'    |RANK_REB          |character |
+#'    |RANK_AST          |character |
+#'    |RANK_STL          |character |
+#'    |RANK_BLK          |character |
+#'    |RANK_TOV          |character |
+#'    |RANK_PTS          |character |
+#'    |RANK_EFF          |character |
+#'
+#'    **SeasonRankingsPostSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |RANK_MIN          |character |
+#'    |RANK_FGM          |character |
+#'    |RANK_FGA          |character |
+#'    |RANK_FG_PCT       |character |
+#'    |RANK_FG3M         |character |
+#'    |RANK_FG3A         |character |
+#'    |RANK_FG3_PCT      |character |
+#'    |RANK_FTM          |character |
+#'    |RANK_FTA          |character |
+#'    |RANK_FT_PCT       |character |
+#'    |RANK_OREB         |character |
+#'    |RANK_DREB         |character |
+#'    |RANK_REB          |character |
+#'    |RANK_AST          |character |
+#'    |RANK_STL          |character |
+#'    |RANK_BLK          |character |
+#'    |RANK_TOV          |character |
+#'    |RANK_PTS          |character |
+#'    |RANK_EFF          |character |
+#'
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
+#' @import rvest
+#' @export
+#' @family NBA Player Functions
+#' @details
+#' [Player Career Stats](https://www.nba.com/stats/player/2544/career)
+#' ```r
+#'  nba_playercareerstats(player_id = '2544')
+#' ```
+nba_playercareerstats <- function(
+    league_id = '00',
+    per_mode = 'Totals',
+    player_id = '2544',
+    ...){
+
+  version <- "playercareerstats"
+  endpoint <- nba_endpoint(version)
+  full_url <- endpoint
+
+  params <- list(
+    LeagueID = league_id,
+    PerMode = per_mode,
+    PlayerID = player_id
+  )
+
+  tryCatch(
+    expr = {
+
+      resp <- request_with_proxy(url = full_url, params = params, ...)
+
+      df_list <- nba_stats_map_result_sets(resp)
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}: Invalid arguments or player career stats data for {player_id} available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df_list)
+}
+
+#' **Get NBA Stats API FanDuel Player Infographic**
+#' @name nba_infographicfanduelplayer
+NULL
+#' @title
+#' **Get NBA Stats API FanDuel Player Infographic**
+#' @rdname nba_infographicfanduelplayer
+#' @author Saiem Gilani
+#' @param game_id game_id
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: FanDuelPlayer
+#'
+#'    **FanDuelPlayer**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |PLAYER_NAME       |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_NAME         |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |JERSEY_NUM        |character |
+#'    |PLAYER_POSITION   |character |
+#'    |LOCATION          |character |
+#'    |FAN_DUEL_PTS      |character |
+#'    |NBA_FANTASY_PTS   |character |
+#'    |USG_PCT           |character |
+#'    |MIN               |character |
+#'    |FGM               |character |
+#'    |FGA               |character |
+#'    |FG_PCT            |character |
+#'    |FG3M              |character |
+#'    |FG3A              |character |
+#'    |FG3_PCT           |character |
+#'    |FTM               |character |
+#'    |FTA               |character |
+#'    |FT_PCT            |character |
+#'    |OREB              |character |
+#'    |DREB              |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |TOV               |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |BLKA              |character |
+#'    |PF                |character |
+#'    |PFD               |character |
+#'    |PTS               |character |
+#'    |PLUS_MINUS        |character |
+#'
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
+#' @import rvest
+#' @export
+#' @family NBA Player Functions
+#' @family NBA Fantasy Functions
+#' @details
+#' ```r
+#'  nba_infographicfanduelplayer(game_id = "0022201086")
+#' ```
+nba_infographicfanduelplayer <- function(
+    game_id,
+    ...){
+
+  version <- "infographicfanduelplayer"
+  endpoint <- nba_endpoint(version)
+  full_url <- endpoint
+
+  params <- list(
+    GameID = game_id
+  )
+
+  tryCatch(
+    expr = {
+
+      resp <- request_with_proxy(url = full_url, params = params, ...)
+
+      df_list <- nba_stats_map_result_sets(resp)
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}: Invalid arguments or no FanDuel player infographic data for {game_id} available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df_list)
+}
+
+#' **Get NBA Stats API Player Fantasy Profile**
+#' @name nba_playerfantasyprofile
+NULL
+#' @title
+#' **Get NBA Stats API Player Fantasy Profile**
+#' @rdname nba_playerfantasyprofile
+#' @author Saiem Gilani
+#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
+#' @param measure_type measure_type
+#' @param player_id Player ID
+#' @param per_mode Per Mode - PerGame, Totals
+#' @param pace_adjust Pace Adjustment - Y/N
+#' @param plus_minus Plus Minus - Y/N
+#' @param rank Rank - Y/N
+#' @param season Season - format 2020-21
+#' @param season_type Season Type - Regular Season, Playoffs, All-Star
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: DaysRestModified, LastNGames, Location, Opponent, Overall
+#'
+#'    **Overall**
+#'
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |GROUP_SET       |character |
+#'    |GROUP_VALUE     |character |
+#'    |GP              |character |
+#'    |W               |character |
+#'    |L               |character |
+#'    |W_PCT           |character |
+#'    |MIN             |character |
+#'    |FGM             |character |
+#'    |FGA             |character |
+#'    |FG_PCT          |character |
+#'    |FG3M            |character |
+#'    |FG3A            |character |
+#'    |FG3_PCT         |character |
+#'    |FTM             |character |
+#'    |FTA             |character |
+#'    |FT_PCT          |character |
+#'    |OREB            |character |
+#'    |DREB            |character |
+#'    |REB             |character |
+#'    |AST             |character |
+#'    |TOV             |character |
+#'    |STL             |character |
+#'    |BLK             |character |
+#'    |BLKA            |character |
+#'    |PF              |character |
+#'    |PFD             |character |
+#'    |PTS             |character |
+#'    |PLUS_MINUS      |character |
+#'    |DD2             |character |
+#'    |TD3             |character |
+#'    |FAN_DUEL_PTS    |character |
+#'    |NBA_FANTASY_PTS |character |
+#'
+#'    **Location**
+#'
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |GROUP_SET       |character |
+#'    |GROUP_VALUE     |character |
+#'    |GP              |character |
+#'    |W               |character |
+#'    |L               |character |
+#'    |W_PCT           |character |
+#'    |MIN             |character |
+#'    |FGM             |character |
+#'    |FGA             |character |
+#'    |FG_PCT          |character |
+#'    |FG3M            |character |
+#'    |FG3A            |character |
+#'    |FG3_PCT         |character |
+#'    |FTM             |character |
+#'    |FTA             |character |
+#'    |FT_PCT          |character |
+#'    |OREB            |character |
+#'    |DREB            |character |
+#'    |REB             |character |
+#'    |AST             |character |
+#'    |TOV             |character |
+#'    |STL             |character |
+#'    |BLK             |character |
+#'    |BLKA            |character |
+#'    |PF              |character |
+#'    |PFD             |character |
+#'    |PTS             |character |
+#'    |PLUS_MINUS      |character |
+#'    |DD2             |character |
+#'    |TD3             |character |
+#'    |FAN_DUEL_PTS    |character |
+#'    |NBA_FANTASY_PTS |character |
+#'
+#'    **LastNGames**
+#'
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |GROUP_SET       |character |
+#'    |GROUP_VALUE     |character |
+#'    |GP              |character |
+#'    |W               |character |
+#'    |L               |character |
+#'    |W_PCT           |character |
+#'    |MIN             |character |
+#'    |FGM             |character |
+#'    |FGA             |character |
+#'    |FG_PCT          |character |
+#'    |FG3M            |character |
+#'    |FG3A            |character |
+#'    |FG3_PCT         |character |
+#'    |FTM             |character |
+#'    |FTA             |character |
+#'    |FT_PCT          |character |
+#'    |OREB            |character |
+#'    |DREB            |character |
+#'    |REB             |character |
+#'    |AST             |character |
+#'    |TOV             |character |
+#'    |STL             |character |
+#'    |BLK             |character |
+#'    |BLKA            |character |
+#'    |PF              |character |
+#'    |PFD             |character |
+#'    |PTS             |character |
+#'    |PLUS_MINUS      |character |
+#'    |DD2             |character |
+#'    |TD3             |character |
+#'    |FAN_DUEL_PTS    |character |
+#'    |NBA_FANTASY_PTS |character |
+#'
+#'    **DaysRestModified**
+#'
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |GROUP_SET       |character |
+#'    |GROUP_VALUE     |character |
+#'    |SEASON_YEAR     |character |
+#'    |GP              |character |
+#'    |W               |character |
+#'    |L               |character |
+#'    |W_PCT           |character |
+#'    |MIN             |character |
+#'    |FGM             |character |
+#'    |FGA             |character |
+#'    |FG_PCT          |character |
+#'    |FG3M            |character |
+#'    |FG3A            |character |
+#'    |FG3_PCT         |character |
+#'    |FTM             |character |
+#'    |FTA             |character |
+#'    |FT_PCT          |character |
+#'    |OREB            |character |
+#'    |DREB            |character |
+#'    |REB             |character |
+#'    |AST             |character |
+#'    |TOV             |character |
+#'    |STL             |character |
+#'    |BLK             |character |
+#'    |BLKA            |character |
+#'    |PF              |character |
+#'    |PFD             |character |
+#'    |PTS             |character |
+#'    |PLUS_MINUS      |character |
+#'    |DD2             |character |
+#'    |TD3             |character |
+#'    |FAN_DUEL_PTS    |character |
+#'    |NBA_FANTASY_PTS |character |
+#'
+#'    **Opponent**
+#'
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |GROUP_SET       |character |
+#'    |GROUP_VALUE     |character |
+#'    |GP              |character |
+#'    |W               |character |
+#'    |L               |character |
+#'    |W_PCT           |character |
+#'    |MIN             |character |
+#'    |FGM             |character |
+#'    |FGA             |character |
+#'    |FG_PCT          |character |
+#'    |FG3M            |character |
+#'    |FG3A            |character |
+#'    |FG3_PCT         |character |
+#'    |FTM             |character |
+#'    |FTA             |character |
+#'    |FT_PCT          |character |
+#'    |OREB            |character |
+#'    |DREB            |character |
+#'    |REB             |character |
+#'    |AST             |character |
+#'    |TOV             |character |
+#'    |STL             |character |
+#'    |BLK             |character |
+#'    |BLKA            |character |
+#'    |PF              |character |
+#'    |PFD             |character |
+#'    |PTS             |character |
+#'    |PLUS_MINUS      |character |
+#'    |DD2             |character |
+#'    |TD3             |character |
+#'    |FAN_DUEL_PTS    |character |
+#'    |NBA_FANTASY_PTS |character |
+#'
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
+#' @import rvest
+#' @export
+#' @family NBA Player Functions
+#' @family NBA Fantasy Functions
+#' @details
+#' ```r
+#'  nba_playerfantasyprofile(player_id = '2544')
+#' ```
+nba_playerfantasyprofile <- function(
+    league_id = '00',
+    measure_type = 'Base',
+    pace_adjust = 'N',
+    per_mode = 'Totals',
+    player_id = '2544',
+    plus_minus = 'N',
+    rank = 'N',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_type = 'Regular Season',
+    ...){
+
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
+  version <- "playerfantasyprofile"
+  endpoint <- nba_endpoint(version)
+  full_url <- endpoint
+
+  params <- list(
+    LeagueID = league_id,
+    MeasureType = measure_type,
+    PaceAdjust = pace_adjust,
+    PerMode = per_mode,
+    PlayerID = player_id,
+    PlusMinus = plus_minus,
+    Rank = rank,
+    Season = season,
+    SeasonType = season_type
+  )
+
+  tryCatch(
+    expr = {
+
+      resp <- request_with_proxy(url = full_url, params = params, ...)
+
+      df_list <- nba_stats_map_result_sets(resp)
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}: Invalid arguments or no player fantasy profile data for {player_id} available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df_list)
+}
+
+
+
+#' **Get NBA Stats API Player Fantasy Profile Bar Graph**
+#' @name nba_playerfantasyprofilebargraph
+NULL
+#' @title
+#' **Get NBA Stats API Player Fantasy Profile Bar Graph**
+#' @rdname nba_playerfantasyprofilebargraph
+#' @author Saiem Gilani
+#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
+#' @param player_id Player ID
+#' @param season Season - format 2020-21
+#' @param season_type Season Type - Regular Season, Playoffs, All-Star
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: LastFiveGamesAvg, SeasonAvg
+#'
+#'    **SeasonAvg**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |PLAYER_NAME       |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |FAN_DUEL_PTS      |character |
+#'    |NBA_FANTASY_PTS   |character |
+#'    |PTS               |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |FG3M              |character |
+#'    |FT_PCT            |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |FG_PCT            |character |
+#'
+#'    **LastFiveGamesAvg**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |PLAYER_NAME       |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |FAN_DUEL_PTS      |character |
+#'    |NBA_FANTASY_PTS   |character |
+#'    |PTS               |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |FG3M              |character |
+#'    |FT_PCT            |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |FG_PCT            |character |
+#'
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
+#' @import rvest
+#' @export
+#' @family NBA Player Functions
+#' @family NBA Fantasy Functions
+#' @details
+#' ```r
+#'  nba_playerfantasyprofilebargraph(player_id = '2544')
+#' ```
+nba_playerfantasyprofilebargraph <- function(
+    league_id = '00',
+    player_id = '2544',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_type = 'Regular Season',
+    ...){
+
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
+  version <- "playerfantasyprofilebargraph"
+  endpoint <- nba_endpoint(version)
+  full_url <- endpoint
+
+  params <- list(
+    LeagueID = league_id,
+    PlayerID = player_id,
+    Season = season,
+    SeasonType = season_type
+  )
+
+  tryCatch(
+    expr = {
+
+      resp <- request_with_proxy(url = full_url, params = params, ...)
+
+      df_list <- nba_stats_map_result_sets(resp)
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}: Invalid arguments or no player fantasy profile bar graph data for {player_id} available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df_list)
+}
+
+
+#' **Get NBA Stats API Player Estimated Metrics**
+#' @name nba_playerestimatedmetrics
+NULL
+#' @title
+#' **Get NBA Stats API Player Estimated Metrics**
+#' @rdname nba_playerestimatedmetrics
+#' @author Saiem Gilani
+#' @param season Season - format 2020-21
+#' @param season_type Season Type - Regular Season, Playoffs, All-Star
+#' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: PlayerEstimatedMetrics
+#'
+#'    **PlayerEstimatedMetrics**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |PLAYER_NAME       |character |
+#'    |GP                |character |
+#'    |W                 |character |
+#'    |L                 |character |
+#'    |W_PCT             |character |
+#'    |MIN               |character |
+#'    |E_OFF_RATING      |character |
+#'    |E_DEF_RATING      |character |
+#'    |E_NET_RATING      |character |
+#'    |E_AST_RATIO       |character |
+#'    |E_OREB_PCT        |character |
+#'    |E_DREB_PCT        |character |
+#'    |E_REB_PCT         |character |
+#'    |E_TOV_PCT         |character |
+#'    |E_USG_PCT         |character |
+#'    |E_PACE            |character |
+#'    |GP_RANK           |character |
+#'    |W_RANK            |character |
+#'    |L_RANK            |character |
+#'    |W_PCT_RANK        |character |
+#'    |MIN_RANK          |character |
+#'    |E_OFF_RATING_RANK |character |
+#'    |E_DEF_RATING_RANK |character |
+#'    |E_NET_RATING_RANK |character |
+#'    |E_AST_RATIO_RANK  |character |
+#'    |E_OREB_PCT_RANK   |character |
+#'    |E_DREB_PCT_RANK   |character |
+#'    |E_REB_PCT_RANK    |character |
+#'    |E_TOV_PCT_RANK    |character |
+#'    |E_USG_PCT_RANK    |character |
+#'    |E_PACE_RANK       |character |
+#'
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
+#' @import rvest
+#' @export
+#' @family NBA Player Functions
+#' @details
+#' [Player Estimated Metrics](https://www.nba.com/stats/players/estimated-advanced)
+#' ```r
+#'  nba_playerestimatedmetrics()
+#' ```
+nba_playerestimatedmetrics <- function(
+    league_id = '00',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_type = 'Regular Season',
+    ...){
+
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
+  version <- "playerestimatedmetrics"
+  endpoint <- nba_endpoint(version)
+  full_url <- endpoint
+
+  params <- list(
+    LeagueID = league_id,
+    Season = season,
+    SeasonType = season_type
+  )
+
+  tryCatch(
+    expr = {
+
+      resp <- request_with_proxy(url = full_url, params = params, ...)
+
+
+      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
+        data <- resp$resultSet$rowSet %>%
+          data.frame(stringsAsFactors = FALSE) %>%
+          dplyr::as_tibble()
+
+        json_names <- resp$resultSet$headers
+        colnames(data) <- json_names
+        return(data)
+      })
+      names(df_list) <- resp$resultSet$name
+
+    },
+    error = function(e) {
+      message(glue::glue("{Sys.time()}: Invalid arguments or no player estimated metrics data for {player_id} available!"))
+    },
+    warning = function(w) {
+    },
+    finally = {
+    }
+  )
+  return(df_list)
+}
+
+
 #' **Get NBA Stats API Player Game Log**
-#' @name p_gamelog
+#' @name nba_playergamelog
 NULL
 #' @title
 #' **Get NBA Stats API Player Game Log**
-#' @rdname p_gamelog
+#' @rdname nba_playergamelog
 #' @author Saiem Gilani
 #' @param date_from date_from
 #' @param date_to date_to
@@ -543,46 +1428,82 @@ NULL
 #' @param player_id Player ID
 #' @param season Season - format 2020-21
 #' @param season_type Season Type - Regular Season, Playoffs, All-Star
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Return a named list of data frames: PlayerGameLog
+#'
+#'    **PlayerGameLog**
+#'
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |SEASON_ID       |character |
+#'    |Player_ID       |character |
+#'    |Game_ID         |character |
+#'    |GAME_DATE       |character |
+#'    |MATCHUP         |character |
+#'    |WL              |character |
+#'    |MIN             |character |
+#'    |FGM             |character |
+#'    |FGA             |character |
+#'    |FG_PCT          |character |
+#'    |FG3M            |character |
+#'    |FG3A            |character |
+#'    |FG3_PCT         |character |
+#'    |FTM             |character |
+#'    |FTA             |character |
+#'    |FT_PCT          |character |
+#'    |OREB            |character |
+#'    |DREB            |character |
+#'    |REB             |character |
+#'    |AST             |character |
+#'    |STL             |character |
+#'    |BLK             |character |
+#'    |TOV             |character |
+#'    |PF              |character |
+#'    |PTS             |character |
+#'    |PLUS_MINUS      |character |
+#'    |VIDEO_AVAILABLE |character |
+#'
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
+#' @family NBA Player Functions
+#' @details
+#' [Player Game Log](https://www.nba.com/stats/player/2544/boxscores-traditional)
+#' ```r
+#'  nba_playergamelog(player_id = '2544')
+#' ```
 nba_playergamelog <- function(
-  date_from = '',
-  date_to = '',
-  league_id = '00',
-  player_id='2544',
-  season='2020-21',
-  season_type='Regular Season'){
+    date_from = '',
+    date_to = '',
+    league_id = '00',
+    player_id = '2544',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_type = 'Regular Season',
+    ...){
 
-  season_type <- gsub(' ','+',season_type)
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
   version <- "playergamelog"
   endpoint <- nba_endpoint(version)
+  full_url <- endpoint
 
-  full_url <- paste0(endpoint,
-                     "?DateFrom=", date_from,
-                     "&DateTo=", date_to,
-                     "&LeagueID=", league_id,
-                     "&PlayerID=",player_id,
-                     "&Season=",season,
-                     "&SeasonType=",season_type)
+  params <- list(
+    DateFrom = date_from,
+    DateTo = date_to,
+    LeagueID = league_id,
+    PlayerID = player_id,
+    Season = season,
+    SeasonType = season_type
+  )
 
   tryCatch(
     expr = {
-      resp <- full_url %>%
-        .nba_headers()
 
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
+      resp <- request_with_proxy(url = full_url, params = params, ...)
 
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
+      df_list <- nba_stats_map_result_sets(resp)
 
     },
     error = function(e) {
@@ -597,11 +1518,11 @@ nba_playergamelog <- function(
 }
 
 #' **Get NBA Stats API Player Game Logs**
-#' @name p_gamelogs
+#' @name nba_playergamelogs
 NULL
 #' @title
 #' **Get NBA Stats API Player Game Logs**
-#' @rdname p_gamelogs
+#' @rdname nba_playergamelogs
 #' @author Saiem Gilani
 #' @param date_from date_from
 #' @param date_to date_to
@@ -623,74 +1544,152 @@ NULL
 #' @param team_id team_id
 #' @param vs_conference vs_conference
 #' @param vs_division vs_division
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Return a named list of data frames: PlayerGameLogs
+#'
+#'    **PlayerGameLogs**
+#'
+#'
+#'    |col_name              |types     |
+#'    |:---------------------|:---------|
+#'    |SEASON_YEAR           |character |
+#'    |PLAYER_ID             |character |
+#'    |PLAYER_NAME           |character |
+#'    |NICKNAME              |character |
+#'    |TEAM_ID               |character |
+#'    |TEAM_ABBREVIATION     |character |
+#'    |TEAM_NAME             |character |
+#'    |GAME_ID               |character |
+#'    |GAME_DATE             |character |
+#'    |MATCHUP               |character |
+#'    |WL                    |character |
+#'    |MIN                   |character |
+#'    |FGM                   |character |
+#'    |FGA                   |character |
+#'    |FG_PCT                |character |
+#'    |FG3M                  |character |
+#'    |FG3A                  |character |
+#'    |FG3_PCT               |character |
+#'    |FTM                   |character |
+#'    |FTA                   |character |
+#'    |FT_PCT                |character |
+#'    |OREB                  |character |
+#'    |DREB                  |character |
+#'    |REB                   |character |
+#'    |AST                   |character |
+#'    |TOV                   |character |
+#'    |STL                   |character |
+#'    |BLK                   |character |
+#'    |BLKA                  |character |
+#'    |PF                    |character |
+#'    |PFD                   |character |
+#'    |PTS                   |character |
+#'    |PLUS_MINUS            |character |
+#'    |NBA_FANTASY_PTS       |character |
+#'    |DD2                   |character |
+#'    |TD3                   |character |
+#'    |WNBA_FANTASY_PTS      |character |
+#'    |GP_RANK               |character |
+#'    |W_RANK                |character |
+#'    |L_RANK                |character |
+#'    |W_PCT_RANK            |character |
+#'    |MIN_RANK              |character |
+#'    |FGM_RANK              |character |
+#'    |FGA_RANK              |character |
+#'    |FG_PCT_RANK           |character |
+#'    |FG3M_RANK             |character |
+#'    |FG3A_RANK             |character |
+#'    |FG3_PCT_RANK          |character |
+#'    |FTM_RANK              |character |
+#'    |FTA_RANK              |character |
+#'    |FT_PCT_RANK           |character |
+#'    |OREB_RANK             |character |
+#'    |DREB_RANK             |character |
+#'    |REB_RANK              |character |
+#'    |AST_RANK              |character |
+#'    |TOV_RANK              |character |
+#'    |STL_RANK              |character |
+#'    |BLK_RANK              |character |
+#'    |BLKA_RANK             |character |
+#'    |PF_RANK               |character |
+#'    |PFD_RANK              |character |
+#'    |PTS_RANK              |character |
+#'    |PLUS_MINUS_RANK       |character |
+#'    |NBA_FANTASY_PTS_RANK  |character |
+#'    |DD2_RANK              |character |
+#'    |TD3_RANK              |character |
+#'    |WNBA_FANTASY_PTS_RANK |character |
+#'    |VIDEO_AVAILABLE_FLAG  |character |
+#'
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
+#' @family NBA Player Functions
+#' @details
+#' [Player Game Logs](https://www.nba.com/stats/player/2544/boxscores-traditional)
+#' ```r
+#'  nba_playergamelogs(player_id = '2544')
+#' ```
 nba_playergamelogs <- function(
-  date_from = '',
-  date_to = '',
-  game_segment = '',
-  last_n_games=0,
-  league_id='00',
-  location='',
-  measure_type='Base',
-  month=0,
-  opponent_team_id=0,
-  outcome='',
-  po_round='',
-  per_mode='Totals',
-  period=0,
-  player_id='2544',
-  season='2020-21',
-  season_segment='',
-  season_type='Regular Season',
-  team_id='',
-  vs_conference='',
-  vs_division=''){
+    date_from = '',
+    date_to = '',
+    game_segment = '',
+    last_n_games = 0,
+    league_id = '00',
+    location = '',
+    measure_type = 'Base',
+    month = 0,
+    opponent_team_id = 0,
+    outcome = '',
+    po_round = '',
+    per_mode = 'Totals',
+    period = 0,
+    player_id = '2544',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_segment = '',
+    season_type = 'Regular Season',
+    team_id = '',
+    vs_conference = '',
+    vs_division = '',
+    ...){
 
-  season_type <- gsub(' ','+',season_type)
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
   version <- "playergamelogs"
   endpoint <- nba_endpoint(version)
+  full_url <- endpoint
 
-  full_url <- paste0(endpoint,
-                     "?DateFrom=", date_from,
-                     "&DateTo=", date_to,
-                     "&GameSegment=", game_segment,
-                     "&LastNGames=", last_n_games,
-                     "&LeagueID=", league_id,
-                     "&Location=", location,
-                     "&MeasureType=", measure_type,
-                     "&Month=", month,
-                     "&OpponentTeamID=", opponent_team_id,
-                     "&Outcome=", outcome,
-                     "&PORound=", po_round,
-                     "&PerMode=", per_mode,
-                     "&Period=", period,
-                     "&PlayerID=",player_id,
-                     "&Season=", season,
-                     "&SeasonSegment=", season_segment,
-                     "&SeasonType=", season_type,
-                     "&TeamID=", team_id,
-                     "&VsConference=", vs_conference,
-                     "&VsDivision=", vs_division)
+  params <- list(
+    DateFrom = date_from,
+    DateTo = date_to,
+    GameSegment = game_segment,
+    LastNGames = last_n_games,
+    LeagueID = league_id,
+    Location = location,
+    MeasureType = measure_type,
+    Month = month,
+    OpponentTeamID = opponent_team_id,
+    Outcome = outcome,
+    PORound = po_round,
+    PerMode = per_mode,
+    Period = period,
+    PlayerID = player_id,
+    Season = season,
+    SeasonSegment = season_segment,
+    SeasonType = season_type,
+    TeamID = team_id,
+    VsConference = vs_conference,
+    VsDivision = vs_division
+  )
+
 
   tryCatch(
     expr = {
-      resp <- full_url %>%
-        .nba_headers()
 
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
+      resp <- request_with_proxy(url = full_url, params = params, ...)
 
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
+      df_list <- nba_stats_map_result_sets(resp)
 
     },
     error = function(e) {
@@ -706,11 +1705,11 @@ nba_playergamelogs <- function(
 
 
 #' **Get NBA Stats API Player Game Streak Finder**
-#' @name pg_streak
+#' @name nba_playergamestreakfinder
 NULL
 #' @title
 #' **Get NBA Stats API Player Game Streak Finder**
-#' @rdname pg_streak
+#' @rdname nba_playergamestreakfinder
 #' @author Saiem Gilani
 #' @param active_streaks_only active_streaks_only
 #' @param conference conference
@@ -801,213 +1800,231 @@ NULL
 #' @param vs_division vs_division
 #' @param vs_team_id vs_team_id
 #' @param years_experience years_experience
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Return a named list of data frames: PlayerGameStreakFinderResults
+#'
+#'    **PlayerGameStreakFinderResults**
+#'
+#'
+#'    |col_name               |types     |
+#'    |:----------------------|:---------|
+#'    |PLAYER_NAME_LAST_FIRST |character |
+#'    |PLAYER_ID              |character |
+#'    |GAMESTREAK             |character |
+#'    |STARTDATE              |character |
+#'    |ENDDATE                |character |
+#'    |ACTIVESTREAK           |character |
+#'    |NUMSEASONS             |character |
+#'    |LASTSEASON             |character |
+#'    |FIRSTSEASON            |character |
+#'
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
+#' @family NBA Player Functions
+#' @family NBA Game Finder Functions
+#' @details
+#' ```r
+#'  nba_playergamestreakfinder()
+#' ```
 
 nba_playergamestreakfinder <- function(
-  active_streaks_only='',
-  conference = '',
-  date_from = '',
-  date_to = '',
-  division = '',
-  draft_year='',
-  draft_team_id='',
-  draft_round='',
-  draft_number='',
-  et_ast='',
-  et_blk='',
-  et_dd='',
-  et_dreb='',
-  et_fg3a='',
-  et_fg3m='',
-  et_fg3_pct='',
-  et_fga='',
-  et_fgm='',
-  et_fg_pct='',
-  et_fta='',
-  et_ftm='',
-  et_ft_pct='',
-  et_minutes='',
-  et_oreb='',
-  et_pf='',
-  et_pts='',
-  et_reb='',
-  et_stl='',
-  et_td='',
-  et_tov='',
-  game_id='',
-  gt_ast='',
-  gt_blk='',
-  gt_dd='',
-  gt_dreb='',
-  gt_fg3a='',
-  gt_fg3m='',
-  gt_fg3_pct='',
-  gt_fga='',
-  gt_fgm='',
-  gt_fg_pct='',
-  gt_fta='',
-  gt_ftm='',
-  gt_ft_pct='',
-  gt_minutes='',
-  gt_oreb='',
-  gt_pf='',
-  gt_pts='',
-  gt_reb='',
-  gt_stl='',
-  gt_td='',
-  gt_tov='',
-  league_id='00',
-  location='',
-  lt_ast='',
-  lt_blk='',
-  lt_dd='',
-  lt_dreb='',
-  lt_fg3a='',
-  lt_fg3m='',
-  lt_fg3_pct='',
-  lt_fga='',
-  lt_fgm='',
-  lt_fg_pct='',
-  lt_fta='',
-  lt_ftm='',
-  lt_ft_pct='',
-  lt_minutes='',
-  lt_oreb='',
-  lt_pf='',
-  lt_pts='',
-  lt_reb='',
-  lt_stl='',
-  lt_td='',
-  lt_tov='',
-  min_games='',
-  outcome='',
-  po_round='',
-  player_id='',
-  rookie_year='',
-  season='2020-21',
-  season_segment='',
-  season_type='Regular Season',
-  starter_bench='',
-  team_id='',
-  vs_conference='',
-  vs_division='',
-  vs_team_id='',
-  years_experience=''){
-  season_type <- gsub(' ','+',season_type)
+    active_streaks_only = '',
+    conference = '',
+    date_from = '',
+    date_to = '',
+    division = '',
+    draft_year = '',
+    draft_team_id = '',
+    draft_round = '',
+    draft_number = '',
+    et_ast = '',
+    et_blk = '',
+    et_dd = '',
+    et_dreb = '',
+    et_fg3a = '',
+    et_fg3m = '',
+    et_fg3_pct = '',
+    et_fga = '',
+    et_fgm = '',
+    et_fg_pct = '',
+    et_fta = '',
+    et_ftm = '',
+    et_ft_pct = '',
+    et_minutes = '',
+    et_oreb = '',
+    et_pf = '',
+    et_pts = '',
+    et_reb = '',
+    et_stl = '',
+    et_td = '',
+    et_tov = '',
+    game_id = '',
+    gt_ast = '',
+    gt_blk = '',
+    gt_dd = '',
+    gt_dreb = '',
+    gt_fg3a = '',
+    gt_fg3m = '',
+    gt_fg3_pct = '',
+    gt_fga = '',
+    gt_fgm = '',
+    gt_fg_pct = '',
+    gt_fta = '',
+    gt_ftm = '',
+    gt_ft_pct = '',
+    gt_minutes = '',
+    gt_oreb = '',
+    gt_pf = '',
+    gt_pts = '',
+    gt_reb = '',
+    gt_stl = '',
+    gt_td = '',
+    gt_tov = '',
+    league_id = '00',
+    location = '',
+    lt_ast = '',
+    lt_blk = '',
+    lt_dd = '',
+    lt_dreb = '',
+    lt_fg3a = '',
+    lt_fg3m = '',
+    lt_fg3_pct = '',
+    lt_fga = '',
+    lt_fgm = '',
+    lt_fg_pct = '',
+    lt_fta = '',
+    lt_ftm = '',
+    lt_ft_pct = '',
+    lt_minutes = '',
+    lt_oreb = '',
+    lt_pf = '',
+    lt_pts = '',
+    lt_reb = '',
+    lt_stl = '',
+    lt_td = '',
+    lt_tov = '',
+    min_games = '',
+    outcome = '',
+    po_round = '',
+    player_id = '',
+    rookie_year = '',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_segment = '',
+    season_type = 'Regular Season',
+    starter_bench = '',
+    team_id = '',
+    vs_conference = '',
+    vs_division = '',
+    vs_team_id = '',
+    years_experience = '',
+    ...){
+
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
   version <- "playergamestreakfinder"
   endpoint <- nba_endpoint(version)
+  full_url <- endpoint
 
-  full_url <- paste0(endpoint,
-                     "?ActiveStreaksOnly", active_streaks_only,
-                     "&Conference=", conference,
-                     "&DateFrom=", date_from,
-                     "&DateTo=", date_to,
-                     "&Division=", division,
-                     "&DraftNumber=",draft_number,
-                     "&DraftRound=",draft_round,
-                     "&DraftTeamID=",draft_team_id,
-                     "&DraftYear=",draft_year,
-                     "&EqAST=",et_ast,
-                     "&EqBLK=",et_blk,
-                     "&EqDD=",et_dd,
-                     "&EqDREB=",et_dreb,
-                     "&EqFG3A=",et_fg3a,
-                     "&EqFG3M=",et_fg3m,
-                     "&EqFG3_PCT=",et_fg3_pct,
-                     "&EqFGA=",et_fga,
-                     "&EqFGM=",et_fgm,
-                     "&EqFG_PCT=",et_fg_pct,
-                     "&EqFTA=",et_fta,
-                     "&EqFTM=",et_ftm,
-                     "&EqFT_PCT=", et_ft_pct,
-                     "&EqMINUTES=",et_minutes,
-                     "&EqOREB=", et_oreb,
-                     "&EqPF=",et_pf,
-                     "&EqPTS=",et_pts,
-                     "&EqREB=", et_reb,
-                     "&EqSTL=",et_stl,
-                     "&EqTD=",et_td,
-                     "&EqTOV=",et_tov,
-                     "&GameID=",game_id,
-                     "&GtAST=",gt_ast,
-                     "&GtBLK=",gt_blk,
-                     "&GtDD=",gt_dd,
-                     "&GtDREB=",gt_dreb,
-                     "&GtFG3A=",gt_fg3a,
-                     "&GtFG3M=",gt_fg3m,
-                     "&GtFG3_PCT=",gt_fg3_pct,
-                     "&GtFGA=",gt_fga,
-                     "&GtFGM=",gt_fgm,
-                     "&GtFG_PCT=",gt_fg_pct,
-                     "&GtFTA=",gt_fta,
-                     "&GtFTM=",gt_ftm,
-                     "&GtFT_PCT=", gt_ft_pct,
-                     "&GtMINUTES=",gt_minutes,
-                     "&GtOREB=", gt_oreb,
-                     "&GtPF=",gt_pf,
-                     "&GtPTS=",gt_pts,
-                     "&GtREB=", gt_reb,
-                     "&GtSTL=",gt_stl,
-                     "&GtTD=",gt_td,
-                     "&GtTOV=",gt_tov,
-                     "&LeagueID=", league_id,
-                     "&Location=",location,
-                     "&LtAST=",lt_ast,
-                     "&LtBLK=",lt_blk,
-                     "&LtDD=",lt_dd,
-                     "&LtDREB=",lt_dreb,
-                     "&LtFG3A=",lt_fg3a,
-                     "&LtFG3M=",lt_fg3m,
-                     "&LtFG3_PCT=",lt_fg3_pct,
-                     "&LtFGA=",lt_fga,
-                     "&LtFGM=",lt_fgm,
-                     "&LtFG_PCT=",lt_fg_pct,
-                     "&LtFTA=",lt_fta,
-                     "&LtFTM=",lt_ftm,
-                     "&LtFT_PCT=", lt_ft_pct,
-                     "&LtMINUTES=",lt_minutes,
-                     "&LtOREB=", lt_oreb,
-                     "&LtPF=",lt_pf,
-                     "&LtPTS=",lt_pts,
-                     "&LtREB=", lt_reb,
-                     "&LtSTL=",lt_stl,
-                     "&LtTD=",lt_td,
-                     "&LtTOV=",lt_tov,
-                     "&MinGames=", min_games,
-                     "&Outcome=",outcome,
-                     "&PORound=",po_round,
-                     "&PlayerID=",player_id,
-                     "&RookieYear=",rookie_year,
-                     "&Season=", season,
-                     "&SeasonSegment=", season_segment,
-                     "&SeasonType=", season_type,
-                     "&StarterBench",starter_bench,
-                     "&TeamID=", team_id,
-                     "&VsConference=", vs_conference,
-                     "&VsDivision=", vs_division,
-                     "&VsTeamID=", vs_team_id,
-                     "&YearsExperience=", years_experience
+  params <- list(
+    ActiveStreaksOnly = active_streaks_only,
+    Conference = conference,
+    DateFrom = date_from,
+    DateTo = date_to,
+    Division = division,
+    DraftNumber = draft_number,
+    DraftRound = draft_round,
+    DraftTeamID = draft_team_id,
+    DraftYear = draft_year,
+    EqAST = et_ast,
+    EqBLK = et_blk,
+    EqDD = et_dd,
+    EqDREB = et_dreb,
+    EqFG3A = et_fg3a,
+    EqFG3M = et_fg3m,
+    EqFG3_PCT = et_fg3_pct,
+    EqFGA = et_fga,
+    EqFGM = et_fgm,
+    EqFG_PCT = et_fg_pct,
+    EqFTA = et_fta,
+    EqFTM = et_ftm,
+    EqFT_PCT = et_ft_pct,
+    EqMINUTES = et_minutes,
+    EqOREB = et_oreb,
+    EqPF = et_pf,
+    EqPTS = et_pts,
+    EqREB = et_reb,
+    EqSTL = et_stl,
+    EqTD = et_td,
+    EqTOV = et_tov,
+    GameID = game_id,
+    GtAST = gt_ast,
+    GtBLK = gt_blk,
+    GtDD = gt_dd,
+    GtDREB = gt_dreb,
+    GtFG3A = gt_fg3a,
+    GtFG3M = gt_fg3m,
+    GtFG3_PCT = gt_fg3_pct,
+    GtFGA = gt_fga,
+    GtFGM = gt_fgm,
+    GtFG_PCT = gt_fg_pct,
+    GtFTA = gt_fta,
+    GtFTM = gt_ftm,
+    GtFT_PCT = gt_ft_pct,
+    GtMINUTES = gt_minutes,
+    GtOREB = gt_oreb,
+    GtPF = gt_pf,
+    GtPTS = gt_pts,
+    GtREB = gt_reb,
+    GtSTL = gt_stl,
+    GtTD = gt_td,
+    GtTOV = gt_tov,
+    LeagueID = league_id,
+    Location = location,
+    LtAST = lt_ast,
+    LtBLK = lt_blk,
+    LtDD = lt_dd,
+    LtDREB = lt_dreb,
+    LtFG3A = lt_fg3a,
+    LtFG3M = lt_fg3m,
+    LtFG3_PCT = lt_fg3_pct,
+    LtFGA = lt_fga,
+    LtFGM = lt_fgm,
+    LtFG_PCT = lt_fg_pct,
+    LtFTA = lt_fta,
+    LtFTM = lt_ftm,
+    LtFT_PCT = lt_ft_pct,
+    LtMINUTES = lt_minutes,
+    LtOREB = lt_oreb,
+    LtPF = lt_pf,
+    LtPTS = lt_pts,
+    LtREB = lt_reb,
+    LtSTL = lt_stl,
+    LtTD = lt_td,
+    LtTOV = lt_tov,
+    MinGames = min_games,
+    Outcome = outcome,
+    PORound = po_round,
+    PlayerID = player_id,
+    RookieYear = rookie_year,
+    Season = season,
+    SeasonSegment = season_segment,
+    SeasonType = season_type,
+    StarterBench = starter_bench,
+    TeamID = team_id,
+    VsConference = vs_conference,
+    VsDivision = vs_division,
+    VsTeamID = vs_team_id,
+    YearsExperience = years_experience
   )
 
   tryCatch(
     expr = {
-      resp <- full_url %>%
-        .nba_headers()
 
-      df_list <- purrr::map(1:length(resp$resultSets$name), function(x){
-        data <- resp$resultSets$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
+      resp <- request_with_proxy(url = full_url, params = params, ...)
 
-        json_names <- resp$resultSets$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSets$name
+      df_list <- nba_stats_map_result_sets(resp)
 
     },
     error = function(e) {
@@ -1023,54 +2040,77 @@ nba_playergamestreakfinder <- function(
 
 
 #' **Get NBA Stats API Player Next N Games**
-#' @name p_n_g
+#' @name nba_playernextngames
 NULL
 #' @title
 #' **Get NBA Stats API Player Next N Games**
-#' @rdname p_n_g
+#' @rdname nba_playernextngames
 #' @author Saiem Gilani
 #' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
 #' @param number_of_games N in number of games
 #' @param player_id Player ID
 #' @param season Season - format 2020-21
 #' @param season_type Season Type - Regular Season, Playoffs, All-Star
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Return a named list of data frames: NextNGames
+#'
+#'    **NextNGames**
+#'
+#'
+#'    |col_name                  |types     |
+#'    |:-------------------------|:---------|
+#'    |GAME_ID                   |character |
+#'    |GAME_DATE                 |character |
+#'    |HOME_TEAM_ID              |character |
+#'    |VISITOR_TEAM_ID           |character |
+#'    |HOME_TEAM_NAME            |character |
+#'    |VISITOR_TEAM_NAME         |character |
+#'    |HOME_TEAM_ABBREVIATION    |character |
+#'    |VISITOR_TEAM_ABBREVIATION |character |
+#'    |HOME_TEAM_NICKNAME        |character |
+#'    |VISITOR_TEAM_NICKNAME     |character |
+#'    |GAME_TIME                 |character |
+#'    |HOME_WL                   |character |
+#'    |VISITOR_WL                |character |
+#'
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
-nba_playernextngames <- function(league_id = '',
-                                 number_of_games=2147483647,
-                                 player_id='2544',
-                                 season='2020-21',
-                                 season_type='Regular Season'){
+#' @family NBA Player Functions
+#' @details
+#' ```r
+#'  nba_playernextngames(player_id = '2544')
+#' ```
+nba_playernextngames <- function(
+    league_id = '',
+    number_of_games = 2147483647,
+    player_id = '2544',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_type = 'Regular Season',
+    ...){
 
-  season_type <- gsub(' ','+',season_type)
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
   version <- "playernextngames"
   endpoint <- nba_endpoint(version)
+  full_url <- endpoint
 
-  full_url <- paste0(endpoint,
-                     "?LeagueID=", league_id,
-                     "&NumberOfGames=", number_of_games,
-                     "&PlayerID=",player_id,
-                     "&Season=",season,
-                     "&SeasonType=",season_type)
+  params <- list(
+    LeagueID = league_id,
+    NumberOfGames = number_of_games,
+    PlayerID = player_id,
+    Season = season,
+    SeasonType = season_type
+  )
 
   tryCatch(
     expr = {
-      resp <- full_url %>%
-        .nba_headers()
 
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
+      resp <- request_with_proxy(url = full_url, params = params, ...)
 
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
+      df_list <- nba_stats_map_result_sets(resp)
+
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no player next n games data available for {player_id}!"))
@@ -1087,49 +2127,427 @@ nba_playernextngames <- function(league_id = '',
 
 
 #' **Get NBA Stats API Player Profile V2**
-#' @name playerprofilev2
+#' @name nba_playerprofilev2
 NULL
 #' @title
 #' **Get NBA Stats API Player Profile V2**
-#' @rdname playerprofilev2
+#' @rdname nba_playerprofilev2
 #' @author Saiem Gilani
 #' @param league_id League - default: '00'. Other options include '10': WNBA, '20': G-League
 #' @param player_id Player ID
 #' @param per_mode Season - format 2020-21
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Return a named list of data frames: CareerHighs, CareerTotalsAllStarSeason, CareerTotalsCollegeSeason, CareerTotalsPostSeason, CareerTotalsPreseason,
 #' CareerTotalsRegularSeason, NextGame, SeasonHighs, SeasonRankingsPostSeason, SeasonRankingsRegularSeason, SeasonTotalsAllStarSeason, SeasonTotalsCollegeSeason,
 #'  SeasonTotalsPostSeason, SeasonTotalsPreseason, SeasonTotalsRegularSeason
+#'
+#'    **SeasonTotalsRegularSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |MIN               |character |
+#'    |FGM               |character |
+#'    |FGA               |character |
+#'    |FG_PCT            |character |
+#'    |FG3M              |character |
+#'    |FG3A              |character |
+#'    |FG3_PCT           |character |
+#'    |FTM               |character |
+#'    |FTA               |character |
+#'    |FT_PCT            |character |
+#'    |OREB              |character |
+#'    |DREB              |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |PF                |character |
+#'    |PTS               |character |
+#'
+#'    **CareerTotalsRegularSeason**
+#'
+#'
+#'    |col_name  |types     |
+#'    |:---------|:---------|
+#'    |PLAYER_ID |character |
+#'    |LEAGUE_ID |character |
+#'    |TEAM_ID   |character |
+#'    |GP        |character |
+#'    |GS        |character |
+#'    |MIN       |character |
+#'    |FGM       |character |
+#'    |FGA       |character |
+#'    |FG_PCT    |character |
+#'    |FG3M      |character |
+#'    |FG3A      |character |
+#'    |FG3_PCT   |character |
+#'    |FTM       |character |
+#'    |FTA       |character |
+#'    |FT_PCT    |character |
+#'    |OREB      |character |
+#'    |DREB      |character |
+#'    |REB       |character |
+#'    |AST       |character |
+#'    |STL       |character |
+#'    |BLK       |character |
+#'    |TOV       |character |
+#'    |PF        |character |
+#'    |PTS       |character |
+#'
+#'    **SeasonTotalsPostSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |MIN               |character |
+#'    |FGM               |character |
+#'    |FGA               |character |
+#'    |FG_PCT            |character |
+#'    |FG3M              |character |
+#'    |FG3A              |character |
+#'    |FG3_PCT           |character |
+#'    |FTM               |character |
+#'    |FTA               |character |
+#'    |FT_PCT            |character |
+#'    |OREB              |character |
+#'    |DREB              |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |PF                |character |
+#'    |PTS               |character |
+#'
+#'    **CareerTotalsPostSeason**
+#'
+#'
+#'    |col_name  |types     |
+#'    |:---------|:---------|
+#'    |PLAYER_ID |character |
+#'    |LEAGUE_ID |character |
+#'    |TEAM_ID   |character |
+#'    |GP        |character |
+#'    |GS        |character |
+#'    |MIN       |character |
+#'    |FGM       |character |
+#'    |FGA       |character |
+#'    |FG_PCT    |character |
+#'    |FG3M      |character |
+#'    |FG3A      |character |
+#'    |FG3_PCT   |character |
+#'    |FTM       |character |
+#'    |FTA       |character |
+#'    |FT_PCT    |character |
+#'    |OREB      |character |
+#'    |DREB      |character |
+#'    |REB       |character |
+#'    |AST       |character |
+#'    |STL       |character |
+#'    |BLK       |character |
+#'    |TOV       |character |
+#'    |PF        |character |
+#'    |PTS       |character |
+#'
+#'    **SeasonTotalsAllStarSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |MIN               |character |
+#'    |FGM               |character |
+#'    |FGA               |character |
+#'    |FG_PCT            |character |
+#'    |FG3M              |character |
+#'    |FG3A              |character |
+#'    |FG3_PCT           |character |
+#'    |FTM               |character |
+#'    |FTA               |character |
+#'    |FT_PCT            |character |
+#'    |OREB              |character |
+#'    |DREB              |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |PF                |character |
+#'    |PTS               |character |
+#'
+#'    **CareerTotalsAllStarSeason**
+#'
+#'
+#'    |col_name  |types     |
+#'    |:---------|:---------|
+#'    |PLAYER_ID |character |
+#'    |LEAGUE_ID |character |
+#'    |TEAM_ID   |character |
+#'    |GP        |character |
+#'    |GS        |character |
+#'    |MIN       |character |
+#'    |FGM       |character |
+#'    |FGA       |character |
+#'    |FG_PCT    |character |
+#'    |FG3M      |character |
+#'    |FG3A      |character |
+#'    |FG3_PCT   |character |
+#'    |FTM       |character |
+#'    |FTA       |character |
+#'    |FT_PCT    |character |
+#'    |OREB      |character |
+#'    |DREB      |character |
+#'    |REB       |character |
+#'    |AST       |character |
+#'    |STL       |character |
+#'    |BLK       |character |
+#'    |TOV       |character |
+#'    |PF        |character |
+#'    |PTS       |character |
+#'
+#'    **SeasonTotalsCollegeSeason**
+#'
+#'    **CareerTotalsCollegeSeason**
+#'
+#'    **SeasonTotalsPreseason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |MIN               |character |
+#'    |FGM               |character |
+#'    |FGA               |character |
+#'    |FG_PCT            |character |
+#'    |FG3M              |character |
+#'    |FG3A              |character |
+#'    |FG3_PCT           |character |
+#'    |FTM               |character |
+#'    |FTA               |character |
+#'    |FT_PCT            |character |
+#'    |OREB              |character |
+#'    |DREB              |character |
+#'    |REB               |character |
+#'    |AST               |character |
+#'    |STL               |character |
+#'    |BLK               |character |
+#'    |TOV               |character |
+#'    |PF                |character |
+#'    |PTS               |character |
+#'
+#'    **CareerTotalsPreseason**
+#'
+#'
+#'    |col_name  |types     |
+#'    |:---------|:---------|
+#'    |PLAYER_ID |character |
+#'    |LEAGUE_ID |character |
+#'    |TEAM_ID   |character |
+#'    |GP        |character |
+#'    |GS        |character |
+#'    |MIN       |character |
+#'    |FGM       |character |
+#'    |FGA       |character |
+#'    |FG_PCT    |character |
+#'    |FG3M      |character |
+#'    |FG3A      |character |
+#'    |FG3_PCT   |character |
+#'    |FTM       |character |
+#'    |FTA       |character |
+#'    |FT_PCT    |character |
+#'    |OREB      |character |
+#'    |DREB      |character |
+#'    |REB       |character |
+#'    |AST       |character |
+#'    |STL       |character |
+#'    |BLK       |character |
+#'    |TOV       |character |
+#'    |PF        |character |
+#'    |PTS       |character |
+#'
+#'    **SeasonRankingsRegularSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |RANK_MIN          |character |
+#'    |RANK_FGM          |character |
+#'    |RANK_FGA          |character |
+#'    |RANK_FG_PCT       |character |
+#'    |RANK_FG3M         |character |
+#'    |RANK_FG3A         |character |
+#'    |RANK_FG3_PCT      |character |
+#'    |RANK_FTM          |character |
+#'    |RANK_FTA          |character |
+#'    |RANK_FT_PCT       |character |
+#'    |RANK_OREB         |character |
+#'    |RANK_DREB         |character |
+#'    |RANK_REB          |character |
+#'    |RANK_AST          |character |
+#'    |RANK_STL          |character |
+#'    |RANK_BLK          |character |
+#'    |RANK_TOV          |character |
+#'    |RANK_PTS          |character |
+#'    |RANK_EFF          |character |
+#'
+#'    **SeasonRankingsPostSeason**
+#'
+#'
+#'    |col_name          |types     |
+#'    |:-----------------|:---------|
+#'    |PLAYER_ID         |character |
+#'    |SEASON_ID         |character |
+#'    |LEAGUE_ID         |character |
+#'    |TEAM_ID           |character |
+#'    |TEAM_ABBREVIATION |character |
+#'    |PLAYER_AGE        |character |
+#'    |GP                |character |
+#'    |GS                |character |
+#'    |RANK_MIN          |character |
+#'    |RANK_FGM          |character |
+#'    |RANK_FGA          |character |
+#'    |RANK_FG_PCT       |character |
+#'    |RANK_FG3M         |character |
+#'    |RANK_FG3A         |character |
+#'    |RANK_FG3_PCT      |character |
+#'    |RANK_FTM          |character |
+#'    |RANK_FTA          |character |
+#'    |RANK_FT_PCT       |character |
+#'    |RANK_OREB         |character |
+#'    |RANK_DREB         |character |
+#'    |RANK_REB          |character |
+#'    |RANK_AST          |character |
+#'    |RANK_STL          |character |
+#'    |RANK_BLK          |character |
+#'    |RANK_TOV          |character |
+#'    |RANK_PTS          |character |
+#'    |RANK_EFF          |character |
+#'
+#'    **SeasonHighs**
+#'
+#'
+#'    |col_name             |types     |
+#'    |:--------------------|:---------|
+#'    |PLAYER_ID            |character |
+#'    |GAME_ID              |character |
+#'    |GAME_DATE            |character |
+#'    |VS_TEAM_ID           |character |
+#'    |VS_TEAM_CITY         |character |
+#'    |VS_TEAM_NAME         |character |
+#'    |VS_TEAM_ABBREVIATION |character |
+#'    |STAT                 |character |
+#'    |STAT_VALUE           |character |
+#'    |STAT_ORDER           |character |
+#'    |DATE_EST             |character |
+#'
+#'    **CareerHighs**
+#'
+#'
+#'    |col_name             |types     |
+#'    |:--------------------|:---------|
+#'    |PLAYER_ID            |character |
+#'    |GAME_ID              |character |
+#'    |GAME_DATE            |character |
+#'    |VS_TEAM_ID           |character |
+#'    |VS_TEAM_CITY         |character |
+#'    |VS_TEAM_NAME         |character |
+#'    |VS_TEAM_ABBREVIATION |character |
+#'    |STAT                 |character |
+#'    |STAT_VALUE           |character |
+#'    |STAT_ORDER           |character |
+#'    |DATE_EST             |character |
+#'
+#'    **NextGame**
+#'
+#'
+#'    |col_name                 |types     |
+#'    |:------------------------|:---------|
+#'    |GAME_ID                  |character |
+#'    |GAME_DATE                |character |
+#'    |GAME_TIME                |character |
+#'    |LOCATION                 |character |
+#'    |PLAYER_TEAM_ID           |character |
+#'    |PLAYER_TEAM_CITY         |character |
+#'    |PLAYER_TEAM_NICKNAME     |character |
+#'    |PLAYER_TEAM_ABBREVIATION |character |
+#'    |VS_TEAM_ID               |character |
+#'    |VS_TEAM_CITY             |character |
+#'    |VS_TEAM_NICKNAME         |character |
+#'    |VS_TEAM_ABBREVIATION     |character |
+#'
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
-nba_playerprofilev2 <- function(league_id = '',
-                                per_mode='Totals',
-                                player_id='2544'){
-
+#' @family NBA Player Functions
+#' @details
+#' [Player Profile](https://www.nba.com/stats/player/2544/career)
+#' ```r
+#'  nba_playerprofilev2(player_id = '2544')
+#' ```
+nba_playerprofilev2 <- function(
+    league_id = '',
+    per_mode = 'Totals',
+    player_id = '2544',
+    ...){
 
   version <- "playerprofilev2"
   endpoint <- nba_endpoint(version)
+  full_url <- endpoint
 
-  full_url <- paste0(endpoint,
-                     "?LeagueID=", league_id,
-                     "&PerMode=", per_mode,
-                     "&PlayerID=",player_id)
+  params <- list(
+    LeagueID = league_id,
+    PerMode = per_mode,
+    PlayerID = player_id
+  )
+
   tryCatch(
     expr = {
-      resp <- full_url %>%
-        .nba_headers()
 
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
+      resp <- request_with_proxy(url = full_url, params = params, ...)
 
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
+      df_list <- nba_stats_map_result_sets(resp)
+
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or no player profile v2 data available for {player_id}!"))
@@ -1144,11 +2562,11 @@ nba_playerprofilev2 <- function(league_id = '',
 
 
 #' **Get NBA Stats API Player vs Player**
-#' @name playervsplayer
+#' @name nba_playervsplayer
 NULL
 #' @title
 #' **Get NBA Stats API Player vs Player**
-#' @rdname playervsplayer
+#' @rdname nba_playervsplayer
 #' @author Saiem Gilani
 #' @param date_from date_from
 #' @param date_to date_to
@@ -1172,78 +2590,281 @@ NULL
 #' @param vs_conference vs_conference
 #' @param vs_division vs_division
 #' @param vs_player_id vs_player_id
-#' @return Return a named list of data frames: OnOffCourt, Overall, PlayerInfo, ShotAreaOffCourt, ShotAreaOnCourt, ShotAreaOverall, ShotDistanceOffCourt, ShotDistanceOnCourt,
+#' @param ... Additional arguments passed to an underlying function like httr.
+#' @return Return a named list of data frames: OnOffCourt, Overall, PlayerInfo, ShotAreaOffCourt,
+#' ShotAreaOnCourt, ShotAreaOverall, ShotDistanceOffCourt, ShotDistanceOnCourt,
 #' ShotDistanceOverall, VsPlayerInfo
+#'
+#'    **Overall**
+#'
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |GROUP_SET       |character |
+#'    |GROUP_VALUE     |character |
+#'    |PLAYER_ID       |character |
+#'    |PLAYER_NAME     |character |
+#'    |GP              |character |
+#'    |W               |character |
+#'    |L               |character |
+#'    |W_PCT           |character |
+#'    |MIN             |character |
+#'    |FGM             |character |
+#'    |FGA             |character |
+#'    |FG_PCT          |character |
+#'    |FG3M            |character |
+#'    |FG3A            |character |
+#'    |FG3_PCT         |character |
+#'    |FTM             |character |
+#'    |FTA             |character |
+#'    |FT_PCT          |character |
+#'    |OREB            |character |
+#'    |DREB            |character |
+#'    |REB             |character |
+#'    |AST             |character |
+#'    |TOV             |character |
+#'    |STL             |character |
+#'    |BLK             |character |
+#'    |BLKA            |character |
+#'    |PF              |character |
+#'    |PFD             |character |
+#'    |PTS             |character |
+#'    |PLUS_MINUS      |character |
+#'    |NBA_FANTASY_PTS |character |
+#'
+#'    **OnOffCourt**
+#'
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |GROUP_SET       |character |
+#'    |PLAYER_ID       |character |
+#'    |PLAYER_NAME     |character |
+#'    |VS_PLAYER_ID    |character |
+#'    |VS_PLAYER_NAME  |character |
+#'    |COURT_STATUS    |character |
+#'    |GP              |character |
+#'    |W               |character |
+#'    |L               |character |
+#'    |W_PCT           |character |
+#'    |MIN             |character |
+#'    |FGM             |character |
+#'    |FGA             |character |
+#'    |FG_PCT          |character |
+#'    |FG3M            |character |
+#'    |FG3A            |character |
+#'    |FG3_PCT         |character |
+#'    |FTM             |character |
+#'    |FTA             |character |
+#'    |FT_PCT          |character |
+#'    |OREB            |character |
+#'    |DREB            |character |
+#'    |REB             |character |
+#'    |AST             |character |
+#'    |TOV             |character |
+#'    |STL             |character |
+#'    |BLK             |character |
+#'    |BLKA            |character |
+#'    |PF              |character |
+#'    |PFD             |character |
+#'    |PTS             |character |
+#'    |PLUS_MINUS      |character |
+#'    |NBA_FANTASY_PTS |character |
+#'
+#'    **ShotDistanceOverall**
+#'
+#'
+#'    |col_name    |types     |
+#'    |:-----------|:---------|
+#'    |GROUP_SET   |character |
+#'    |GROUP_VALUE |character |
+#'    |PLAYER_ID   |character |
+#'    |PLAYER_NAME |character |
+#'    |FGM         |character |
+#'    |FGA         |character |
+#'    |FG_PCT      |character |
+#'
+#'    **ShotDistanceOnCourt**
+#'
+#'
+#'    |col_name       |types     |
+#'    |:--------------|:---------|
+#'    |GROUP_SET      |character |
+#'    |PLAYER_ID      |character |
+#'    |PLAYER_NAME    |character |
+#'    |VS_PLAYER_ID   |character |
+#'    |VS_PLAYER_NAME |character |
+#'    |COURT_STATUS   |character |
+#'    |GROUP_VALUE    |character |
+#'    |FGM            |character |
+#'    |FGA            |character |
+#'    |FG_PCT         |character |
+#'
+#'    **ShotDistanceOffCourt**
+#'
+#'
+#'    |col_name       |types     |
+#'    |:--------------|:---------|
+#'    |GROUP_SET      |character |
+#'    |PLAYER_ID      |character |
+#'    |PLAYER_NAME    |character |
+#'    |VS_PLAYER_ID   |character |
+#'    |VS_PLAYER_NAME |character |
+#'    |COURT_STATUS   |character |
+#'    |GROUP_VALUE    |character |
+#'    |FGM            |character |
+#'    |FGA            |character |
+#'    |FG_PCT         |character |
+#'
+#'    **ShotAreaOverall**
+#'
+#'
+#'    |col_name    |types     |
+#'    |:-----------|:---------|
+#'    |GROUP_SET   |character |
+#'    |GROUP_VALUE |character |
+#'    |PLAYER_ID   |character |
+#'    |PLAYER_NAME |character |
+#'    |FGM         |character |
+#'    |FGA         |character |
+#'    |FG_PCT      |character |
+#'
+#'    **ShotAreaOnCourt**
+#'
+#'
+#'    |col_name       |types     |
+#'    |:--------------|:---------|
+#'    |GROUP_SET      |character |
+#'    |PLAYER_ID      |character |
+#'    |PLAYER_NAME    |character |
+#'    |VS_PLAYER_ID   |character |
+#'    |VS_PLAYER_NAME |character |
+#'    |COURT_STATUS   |character |
+#'    |GROUP_VALUE    |character |
+#'    |FGM            |character |
+#'    |FGA            |character |
+#'    |FG_PCT         |character |
+#'
+#'    **ShotAreaOffCourt**
+#'
+#'
+#'    |col_name       |types     |
+#'    |:--------------|:---------|
+#'    |GROUP_SET      |character |
+#'    |PLAYER_ID      |character |
+#'    |PLAYER_NAME    |character |
+#'    |VS_PLAYER_ID   |character |
+#'    |VS_PLAYER_NAME |character |
+#'    |COURT_STATUS   |character |
+#'    |GROUP_VALUE    |character |
+#'    |FGM            |character |
+#'    |FGA            |character |
+#'    |FG_PCT         |character |
+#'
+#'    **PlayerInfo**
+#'
+#'
+#'    |col_name                 |types     |
+#'    |:------------------------|:---------|
+#'    |PERSON_ID                |character |
+#'    |FIRST_NAME               |character |
+#'    |LAST_NAME                |character |
+#'    |DISPLAY_FIRST_LAST       |character |
+#'    |DISPLAY_LAST_COMMA_FIRST |character |
+#'    |DISPLAY_FI_LAST          |character |
+#'    |BIRTHDATE                |character |
+#'    |SCHOOL                   |character |
+#'    |COUNTRY                  |character |
+#'    |LAST_AFFILIATION         |character |
+#'
+#'    **VsPlayerInfo**
+#'
+#'
+#'    |col_name                 |types     |
+#'    |:------------------------|:---------|
+#'    |PERSON_ID                |character |
+#'    |FIRST_NAME               |character |
+#'    |LAST_NAME                |character |
+#'    |DISPLAY_FIRST_LAST       |character |
+#'    |DISPLAY_LAST_COMMA_FIRST |character |
+#'    |DISPLAY_FI_LAST          |character |
+#'    |BIRTHDATE                |character |
+#'    |SCHOOL                   |character |
+#'    |COUNTRY                  |character |
+#'    |LAST_AFFILIATION         |character |
+#'
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
+#' @family NBA Player Functions
+#' @details
+#' ```r
+#'  nba_playervsplayer(player_id = '2544', vs_player_id = '203076')
+#' ```
 nba_playervsplayer <- function(
-  date_from = '',
-  date_to = '',
-  game_segment = '',
-  last_n_games=0,
-  league_id='00',
-  location='',
-  measure_type='Base',
-  month=0,
-  opponent_team_id=0,
-  outcome='',
-  pace_adjust='N',
-  per_mode='Totals',
-  period=0,
-  player_id='2544',
-  plus_minus='N',
-  rank='N',
-  season='2020-21',
-  season_segment='',
-  season_type='Regular Season',
-  vs_conference='',
-  vs_division='',
-  vs_player_id='203076'){
+    date_from = '',
+    date_to = '',
+    game_segment = '',
+    last_n_games = 0,
+    league_id = '00',
+    location = '',
+    measure_type = 'Base',
+    month = 0,
+    opponent_team_id = 0,
+    outcome = '',
+    pace_adjust = 'N',
+    per_mode = 'Totals',
+    period = 0,
+    player_id = '2544',
+    plus_minus = 'N',
+    rank = 'N',
+    season = year_to_season(most_recent_nba_season() - 1),
+    season_segment = '',
+    season_type = 'Regular Season',
+    vs_conference = '',
+    vs_division = '',
+    vs_player_id = '203076',
+    ...){
 
-  season_type <- gsub(' ','+',season_type)
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
   version <- "playervsplayer"
   endpoint <- nba_endpoint(version)
+  full_url <- endpoint
 
-  full_url <- paste0(endpoint,
-                     "?DateFrom=", date_from,
-                     "&DateTo=", date_to,
-                     "&GameSegment=", game_segment,
-                     "&LastNGames=", last_n_games,
-                     "&LeagueID=", league_id,
-                     "&Location=", location,
-                     "&MeasureType=", measure_type,
-                     "&Month=", month,
-                     "&OpponentTeamID=", opponent_team_id,
-                     "&Outcome=", outcome,
-                     "&PaceAdjust=", pace_adjust,
-                     "&PerMode=", per_mode,
-                     "&Period=", period,
-                     "&PlayerID=",player_id,
-                     "&PlusMinus=",plus_minus,
-                     "&Rank=",rank,
-                     "&Season=", season,
-                     "&SeasonSegment=", season_segment,
-                     "&SeasonType=", season_type,
-                     "&VsConference=", vs_conference,
-                     "&VsDivision=", vs_division,
-                     "&VsPlayerID=", vs_player_id)
+  params <- list(
+    DateFrom = date_from,
+    DateTo = date_to,
+    GameSegment = game_segment,
+    LastNGames = last_n_games,
+    LeagueID = league_id,
+    Location = location,
+    MeasureType = measure_type,
+    Month = month,
+    OpponentTeamID = opponent_team_id,
+    Outcome = outcome,
+    PaceAdjust = pace_adjust,
+    PerMode = per_mode,
+    Period = period,
+    PlayerID = player_id,
+    PlusMinus = plus_minus,
+    Rank = rank,
+    Season = season,
+    SeasonSegment = season_segment,
+    SeasonType = season_type,
+    VsConference = vs_conference,
+    VsDivision = vs_division,
+    VsPlayerID = vs_player_id
+  )
+
   tryCatch(
     expr = {
-      resp <- full_url %>%
-        .nba_headers()
 
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
+      resp <- request_with_proxy(url = full_url, params = params, ...)
 
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
+      df_list <- nba_stats_map_result_sets(resp)
+
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or player vs player data unavailable for the parameters selected!"))
@@ -1258,11 +2879,11 @@ nba_playervsplayer <- function(
 
 
 #' **Get NBA Stats API Player Compare**
-#' @name playercompare
+#' @name nba_playercompare
 NULL
 #' @title
 #' **Get NBA Stats API Player Compare**
-#' @rdname playercompare
+#' @rdname nba_playercompare
 #' @author Saiem Gilani
 #' @param conference conference
 #' @param date_from date_from
@@ -1288,81 +2909,145 @@ NULL
 #' @param vs_conference vs_conference
 #' @param vs_division vs_division
 #' @param vs_player_id_list vs_player_id_list
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Return a named list of data frames: Individual, OverallCompare
+#'
+#'    **OverallCompare**
+#'
+#'
+#'    |col_name    |types     |
+#'    |:-----------|:---------|
+#'    |GROUP_SET   |character |
+#'    |DESCRIPTION |character |
+#'    |MIN         |character |
+#'    |FGM         |character |
+#'    |FGA         |character |
+#'    |FG_PCT      |character |
+#'    |FG3M        |character |
+#'    |FG3A        |character |
+#'    |FG3_PCT     |character |
+#'    |FTM         |character |
+#'    |FTA         |character |
+#'    |FT_PCT      |character |
+#'    |OREB        |character |
+#'    |DREB        |character |
+#'    |REB         |character |
+#'    |AST         |character |
+#'    |TOV         |character |
+#'    |STL         |character |
+#'    |BLK         |character |
+#'    |BLKA        |character |
+#'    |PF          |character |
+#'    |PFD         |character |
+#'    |PTS         |character |
+#'    |PLUS_MINUS  |character |
+#'
+#'    **Individual**
+#'
+#'
+#'    |col_name    |types     |
+#'    |:-----------|:---------|
+#'    |GROUP_SET   |character |
+#'    |DESCRIPTION |character |
+#'    |MIN         |character |
+#'    |FGM         |character |
+#'    |FGA         |character |
+#'    |FG_PCT      |character |
+#'    |FG3M        |character |
+#'    |FG3A        |character |
+#'    |FG3_PCT     |character |
+#'    |FTM         |character |
+#'    |FTA         |character |
+#'    |FT_PCT      |character |
+#'    |OREB        |character |
+#'    |DREB        |character |
+#'    |REB         |character |
+#'    |AST         |character |
+#'    |TOV         |character |
+#'    |STL         |character |
+#'    |BLK         |character |
+#'    |BLKA        |character |
+#'    |PF          |character |
+#'    |PFD         |character |
+#'    |PTS         |character |
+#'    |PLUS_MINUS  |character |
+#'
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom dplyr filter select rename bind_cols bind_rows as_tibble
 #' @import rvest
 #' @export
+#' @family NBA Player Functions
+#' @details
+#' ```r
+#'  nba_playercompare(player_id_list = '202681,203078,2544,201567,203954', vs_player_id_list = '201566,201939,201935,201142,203076')
+#' ```
 nba_playercompare <- function(
-  conference = '',
-  date_from = '',
-  date_to = '',
-  game_segment = '',
-  last_n_games=0,
-  league_id='00',
-  location='',
-  measure_type='Base',
-  month=0,
-  opponent_team_id=0,
-  outcome='',
-  pace_adjust='N',
-  per_mode='Totals',
-  period=0,
-  player_id_list='202681,203078,2544,201567,203954',
-  plus_minus='N',
-  rank='N',
-  season='2020-21',
-  season_segment='',
-  season_type='Regular Season',
-  shot_clock_range='',
-  vs_conference='',
-  vs_division='',
-  vs_player_id_list='201566,201939,201935,201142,203076'){
+    conference = '',
+    date_from = '',
+    date_to = '',
+    game_segment = '',
+    last_n_games = 0,
+    league_id = '00',
+    location = '',
+    measure_type = 'Base',
+    month = 0,
+    opponent_team_id = 0,
+    outcome = '',
+    pace_adjust = 'N',
+    per_mode = 'Totals',
+    period = 0,
+    player_id_list = '202681,203078,2544,201567,203954',
+    plus_minus = 'N',
+    rank = 'N',
+    season = '2020-21',
+    season_segment = '',
+    season_type = 'Regular Season',
+    shot_clock_range = '',
+    vs_conference = '',
+    vs_division = '',
+    vs_player_id_list = '201566,201939,201935,201142,203076',
+    ...){
 
-  season_type <- gsub(' ','+',season_type)
+  # Intentional
+  # season_type <- gsub(' ', '+', season_type)
   version <- "playercompare"
   endpoint <- nba_endpoint(version)
+  full_url <- endpoint
 
-  full_url <- paste0(endpoint,
-                     "?Conference", conference,
-                     "&DateFrom=", date_from,
-                     "&DateTo=", date_to,
-                     "&GameSegment=", game_segment,
-                     "&LastNGames=", last_n_games,
-                     "&LeagueID=", league_id,
-                     "&Location=", location,
-                     "&MeasureType=", measure_type,
-                     "&Month=", month,
-                     "&OpponentTeamID=", opponent_team_id,
-                     "&Outcome=", outcome,
-                     "&PaceAdjust=", pace_adjust,
-                     "&PerMode=", per_mode,
-                     "&Period=", period,
-                     "&PlayerIDList=",URLencode(player_id_list),
-                     "&PlusMinus=",plus_minus,
-                     "&Rank=",rank,
-                     "&Season=", season,
-                     "&SeasonSegment=", season_segment,
-                     "&SeasonType=", season_type,
-                     "&ShotClockRange=",shot_clock_range,
-                     "&VsConference=", vs_conference,
-                     "&VsDivision=", vs_division,
-                     "&VsPlayerIDList=", URLencode(vs_player_id_list))
+  params <- list(
+    Conference = conference,
+    DateFrom = date_from,
+    DateTo = date_to,
+    GameSegment = game_segment,
+    LastNGames = last_n_games,
+    LeagueID = league_id,
+    Location = location,
+    MeasureType = measure_type,
+    Month = month,
+    OpponentTeamID = opponent_team_id,
+    Outcome = outcome,
+    PaceAdjust = pace_adjust,
+    PerMode = per_mode,
+    Period = period,
+    PlayerIDList = URLencode(player_id_list),
+    PlusMinus = plus_minus,
+    Rank = rank,
+    Season = season,
+    SeasonSegment = season_segment,
+    SeasonType = season_type,
+    ShotClockRange = shot_clock_range,
+    VsConference = vs_conference,
+    VsDivision = vs_division,
+    VsPlayerIDList = URLencode(vs_player_id_list)
+  )
+
   tryCatch(
     expr = {
-      resp <- full_url %>%
-        .nba_headers()
 
-      df_list <- purrr::map(1:length(resp$resultSet$name), function(x){
-        data <- resp$resultSet$rowSet[[x]] %>%
-          data.frame(stringsAsFactors = F) %>%
-          as_tibble()
+      resp <- request_with_proxy(url = full_url, params = params, ...)
 
-        json_names <- resp$resultSet$headers[[x]]
-        colnames(data) <- json_names
-        return(data)
-      })
-      names(df_list) <- resp$resultSet$name
+      df_list <- nba_stats_map_result_sets(resp)
+
     },
     error = function(e) {
       message(glue::glue("{Sys.time()}: Invalid arguments or player comparison data unavailable for the parameters selected!"))

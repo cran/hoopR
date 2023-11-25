@@ -10,15 +10,68 @@ espn_mbb_scoreboard(season)
 \item{season}{Either numeric or character}
 }
 \value{
-Returns a tibble
+Returns a tibble\tabular{ll}{
+   col_name \tab types \cr
+   matchup \tab character \cr
+   matchup_short \tab character \cr
+   season \tab integer \cr
+   season_type \tab integer \cr
+   season_slug \tab character \cr
+   game_id \tab integer \cr
+   game_uid \tab character \cr
+   game_date \tab Date \cr
+   attendance \tab integer \cr
+   status_name \tab character \cr
+   broadcast_market \tab character \cr
+   broadcast_name \tab character \cr
+   start_date \tab character \cr
+   game_date_time \tab POSIXct \cr
+   home_team_name \tab character \cr
+   home_team_logo \tab character \cr
+   home_team_abb \tab character \cr
+   home_team_id \tab integer \cr
+   home_team_location \tab character \cr
+   home_team_full_name \tab character \cr
+   home_team_color \tab character \cr
+   home_score \tab integer \cr
+   home_win \tab integer \cr
+   home_record \tab character \cr
+   away_team_name \tab character \cr
+   away_team_logo \tab character \cr
+   away_team_abb \tab character \cr
+   away_team_id \tab integer \cr
+   away_team_location \tab character \cr
+   away_team_full_name \tab character \cr
+   away_team_color \tab character \cr
+   away_score \tab integer \cr
+   away_win \tab integer \cr
+   away_record \tab character \cr
+}
 }
 \description{
 \strong{Get ESPN men's college basketball schedule for a specific year}
 }
 \examples{
 
-# Get schedule from date 2022-02-15
+# Get schedule from date 2022-11-17
 \donttest{
-  try(espn_mbb_scoreboard (season = "20220215"))
+  try(espn_mbb_scoreboard (season = "20221117"))
 }
 }
+\seealso{
+Other ESPN MBB Functions: 
+\code{\link{espn_mbb_betting}()},
+\code{\link{espn_mbb_conferences}()},
+\code{\link{espn_mbb_game_all}()},
+\code{\link{espn_mbb_game_rosters}()},
+\code{\link{espn_mbb_pbp}()},
+\code{\link{espn_mbb_player_box}()},
+\code{\link{espn_mbb_player_stats}()},
+\code{\link{espn_mbb_rankings}()},
+\code{\link{espn_mbb_standings}()},
+\code{\link{espn_mbb_team_box}()},
+\code{\link{espn_mbb_team_stats}()},
+\code{\link{espn_mbb_teams}()},
+\code{\link{espn_mbb_wp}()}
+}
+\concept{ESPN MBB Functions}

@@ -4,17 +4,53 @@
 \alias{nbagl_standings}
 \title{\strong{Get Current G League Standings from NBA API}}
 \usage{
-nbagl_standings(season = most_recent_nba_season() - 1)
+nbagl_standings(season = most_recent_nba_season() - 1, ...)
 }
 \arguments{
 \item{season}{Season - 4 digit, i.e. 2021}
+
+\item{...}{Additional arguments passed to an underlying function like httr.}
 }
 \value{
-Returns a tibble of the G League Season Standings
+Returns a tibble of the G League Season Standings\tabular{ll}{
+   col_name \tab types \cr
+   val \tab character \cr
+   di_val \tab character \cr
+   tid \tab integer \cr
+   see \tab integer \cr
+   cli \tab integer \cr
+   clid \tab integer \cr
+   clic \tab integer \cr
+   elim \tab integer \cr
+   str \tab character \cr
+   l10 \tab character \cr
+   dr \tab character \cr
+   cr \tab character \cr
+   l \tab integer \cr
+   w \tab integer \cr
+   hr \tab character \cr
+   ar \tab character \cr
+   gb \tab numeric \cr
+   gbd \tab numeric \cr
+   ta \tab character \cr
+   tn \tab character \cr
+   tc \tab character \cr
+}
 }
 \description{
 Scrapes the NBA Data API for G League Standings
 }
+\details{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ nbagl_standings(season = most_recent_nba_season() - 1)
+}\if{html}{\out{</div>}}
+}
+\seealso{
+Other NBA G-League Functions: 
+\code{\link{nbagl_pbp}()},
+\code{\link{nbagl_players}()},
+\code{\link{nbagl_schedule}()}
+}
 \author{
 Billy Fryer
 }
+\concept{NBA G-League Functions}

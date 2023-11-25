@@ -6,16 +6,53 @@ NULL
 #' @description Scrapes the NBA Data API for All Players in G League History
 #' @rdname nbagl_players
 #' @author Billy Fryer
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Returns a data frame of G League Players from NBA Database
+#'
+#'    |col_name        |types     |
+#'    |:---------------|:---------|
+#'    |nba-affiliation |character |
+#'    |season          |integer   |
+#'    |permalink       |character |
+#'    |tid             |integer   |
+#'    |fn              |character |
+#'    |ln              |character |
+#'    |pid             |integer   |
+#'    |num             |character |
+#'    |pos             |character |
+#'    |dob             |character |
+#'    |ht              |character |
+#'    |wt              |integer   |
+#'    |y               |integer   |
+#'    |sn              |character |
+#'    |ty              |character |
+#'    |co              |character |
+#'    |la              |character |
+#'    |dy              |character |
+#'    |pc              |character |
+#'    |fa              |character |
+#'    |s               |character |
+#'    |twc             |character |
+#'    |ta              |character |
+#'    |tn              |character |
+#'    |tc              |character |
+#'
 #' @importFrom jsonlite fromJSON
 #' @import rvest
 #' @export
+#' @family NBA G-League Functions
+#' @details
+#' ```r
+#'  nbagl_players()
+#' ```
 
-nbagl_players <- function() {
+nbagl_players <- function(
+    ...) {
   full_url <- "https://gleague.nba.com/config/gleague/players.json"
   tryCatch(
-    expr={
-      res <- httr::RETRY("GET", full_url)
+    expr = {
+
+      res <- httr::RETRY("GET", full_url, ...)
 
       resp <- httr::content(x = res, as = "text", encoding = "UTF-8")
 

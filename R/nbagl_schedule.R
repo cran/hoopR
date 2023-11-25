@@ -6,20 +6,65 @@ NULL
 #' @rdname nbagl_schedule
 #' @author Billy Fryer
 #' @param season Season - 4 digit, i.e. 2021
+#' @param ... Additional arguments passed to an underlying function like httr.
 #' @return Returns a data frame of the G League Season Schedule
+#'
+#'    |col_name |types     |
+#'    |:--------|:---------|
+#'    |mon      |character |
+#'    |gid      |character |
+#'    |gcode    |character |
+#'    |seri     |character |
+#'    |is       |integer   |
+#'    |gdte     |character |
+#'    |htm      |character |
+#'    |vtm      |character |
+#'    |etm      |character |
+#'    |an       |character |
+#'    |ac       |character |
+#'    |as       |character |
+#'    |st       |character |
+#'    |stt      |character |
+#'    |gdtutc   |character |
+#'    |utctm    |character |
+#'    |ppdst    |character |
+#'    |seq      |integer   |
+#'    |bd_b     |list      |
+#'    |v_tid    |integer   |
+#'    |v_re     |character |
+#'    |v_ta     |character |
+#'    |v_tn     |character |
+#'    |v_tc     |character |
+#'    |v_s      |character |
+#'    |h_tid    |integer   |
+#'    |h_re     |character |
+#'    |h_ta     |character |
+#'    |h_tn     |character |
+#'    |h_tc     |character |
+#'    |h_s      |character |
+#'    |ptsls_pl |list      |
+#'
 #' @importFrom glue glue
 #' @importFrom jsonlite fromJSON
 #' @importFrom dplyr pull bind_rows arrange
 #' @import rvest
 #' @export
+#' @family NBA G-League Functions
+#' @details
+#' ```r
+#'  nbagl_schedule(season = most_recent_nba_season() - 1)
+#' ```
 
-nbagl_schedule <- function(season = most_recent_nba_season()-1) {
+nbagl_schedule <- function(
+    season = most_recent_nba_season() - 1,
+    ...) {
   # From This Line to My next comment, basically everything is
   # Copied from hoopR except the url and the table name
   full_url <- glue::glue("https://data.nba.com/data/10s/v2015/json/mobile_teams/dleague/{season}/league/20_full_schedule.json")
   tryCatch(
-    expr={
-      res <- httr::RETRY("GET", full_url)
+    expr = {
+
+      res <- httr::RETRY("GET", full_url, ...)
 
       resp <- res$content %>%
         rawToChar() %>%
@@ -28,7 +73,7 @@ nbagl_schedule <- function(season = most_recent_nba_season()-1) {
       schedule_df <- resp$lscd$mscd %>%
         jsonlite::toJSON() %>%
         jsonlite::fromJSON(flatten=TRUE) %>%
-        tidyr::unnest(.data$g) %>%
+        tidyr::unnest("g") %>%
         janitor::clean_names() %>%
         dplyr::arrange(.data$gdte) %>%
         make_hoopR_data("NBA G-League Season Schedule Information from NBA.com",Sys.time())

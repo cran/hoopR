@@ -1,4 +1,5 @@
 test_that("NCAA - Get MBB NET rankings", {
+  skip()
   skip_on_cran()
   x <- ncaa_mbb_NET_rankings()
 

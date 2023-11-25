@@ -10,15 +10,52 @@ espn_nba_standings(year)
 \item{year}{Either numeric or character (YYYY)}
 }
 \value{
-A standings data frame
+A standings data frame\tabular{ll}{
+   col_name \tab types \cr
+   team_id \tab integer \cr
+   team \tab character \cr
+   avgpointsagainst \tab numeric \cr
+   avgpointsfor \tab numeric \cr
+   clincher \tab numeric \cr
+   differential \tab numeric \cr
+   divisionwinpercent \tab numeric \cr
+   gamesbehind \tab numeric \cr
+   leaguewinpercent \tab numeric \cr
+   losses \tab numeric \cr
+   playoffseed \tab numeric \cr
+   streak \tab numeric \cr
+   winpercent \tab numeric \cr
+   wins \tab numeric \cr
+   leaguestandings \tab character \cr
+   home \tab character \cr
+   road \tab character \cr
+   vsdiv \tab character \cr
+   vsconf \tab character \cr
+   lasttengames \tab character \cr
+}
 }
 \description{
 \strong{Get ESPN NBA's Standings}
 }
 \examples{
 \donttest{
-try(espn_nba_standings(year = 2021))
+  try(espn_nba_standings(year = 2021))
 }
 }
+\seealso{
+Other ESPN NBA Functions: 
+\code{\link{espn_nba_betting}()},
+\code{\link{espn_nba_game_all}()},
+\code{\link{espn_nba_game_rosters}()},
+\code{\link{espn_nba_pbp}()},
+\code{\link{espn_nba_player_box}()},
+\code{\link{espn_nba_player_stats}()},
+\code{\link{espn_nba_scoreboard}()},
+\code{\link{espn_nba_team_box}()},
+\code{\link{espn_nba_team_stats}()},
+\code{\link{espn_nba_teams}()},
+\code{\link{espn_nba_wp}()}
+}
+\concept{ESPN NBA Functions}
 \keyword{NBA}
 \keyword{Standings}

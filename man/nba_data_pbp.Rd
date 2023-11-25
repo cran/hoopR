@@ -4,19 +4,86 @@
 \alias{nba_data_pbp}
 \title{\strong{Get NBA Data API Play-by-Play}}
 \usage{
-nba_data_pbp(game_id = "0021900001")
+nba_data_pbp(game_id = "0021900001", ...)
 }
 \arguments{
 \item{game_id}{Game ID - 10 digits, i.e. "0021900001"}
+
+\item{...}{Additional arguments passed to an underlying function like httr.}
 }
 \value{
-Returns a tibble
+Returns a tibble\tabular{ll}{
+   col_name \tab types \cr
+   game_id \tab character \cr
+   league \tab character \cr
+   period \tab integer \cr
+   event_num \tab integer \cr
+   clock \tab character \cr
+   description \tab character \cr
+   locX \tab integer \cr
+   locY \tab integer \cr
+   opt1 \tab integer \cr
+   opt2 \tab integer \cr
+   event_action_type \tab integer \cr
+   event_type \tab integer \cr
+   team_id \tab integer \cr
+   offense_team_id \tab integer \cr
+   player1_id \tab integer \cr
+   player2_id \tab integer \cr
+   player3_id \tab integer \cr
+   home_score \tab integer \cr
+   away_score \tab integer \cr
+   order \tab integer \cr
+}
+
+
+Event Message Types (event_type):
+
+1 -> MAKE
+
+2 -> MISS
+
+3 -> FreeThrow
+
+4 -> Rebound
+
+5 -> Turnover
+
+6 -> Foul
+
+7 -> Violation
+
+8 -> Substitution
+
+9 -> Timeout
+
+10 -> JumpBall
+
+11 -> Ejection
+
+12 -> StartOfPeriod
+
+13 -> EndOfPeriod
+
+14 -> Empty
 }
 \description{
 \strong{Get NBA Data API Play-by-Play}
 
 \strong{Get NBA Data API Play-by-Play}
 }
+\details{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ nba_data_pbp(game_id = "0021900001")
+}\if{html}{\out{</div>}}
+}
+\seealso{
+Other NBA PBP Functions: 
+\code{\link{nba_live_pbp}()},
+\code{\link{nba_pbps}()},
+\code{\link{nba_pbp}()},
+\code{\link{nba_winprobabilitypbp}()}
+}
 \author{
 Saiem Gilani
 }
+\concept{NBA PBP Functions}

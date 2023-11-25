@@ -1,0 +1,66 @@
+test_that("hoopR Loader MBB Team Box", {
+  skip_on_cran()
+  x <- load_mbb_team_box(seasons = most_recent_mbb_season())
+
+
+  cols <- c(
+    "game_id",
+    "season",
+    "season_type",
+    "game_date",
+    "game_date_time",
+    "team_id",
+    "team_uid",
+    "team_slug",
+    "team_location",
+    "team_name",
+    "team_abbreviation",
+    "team_display_name",
+    "team_short_display_name",
+    "team_color",
+    "team_alternate_color",
+    "team_logo",
+    "team_home_away",
+    "team_score",
+    "team_winner",
+    "assists",
+    "blocks",
+    "defensive_rebounds",
+    "field_goal_pct",
+    "field_goals_made",
+    "field_goals_attempted",
+    "flagrant_fouls",
+    "fouls",
+    "free_throw_pct",
+    "free_throws_made",
+    "free_throws_attempted",
+    "largest_lead",
+    "offensive_rebounds",
+    "steals",
+    "team_turnovers",
+    "technical_fouls",
+    "three_point_field_goal_pct",
+    "three_point_field_goals_made",
+    "three_point_field_goals_attempted",
+    "total_rebounds",
+    "total_technical_fouls",
+    "total_turnovers",
+    "turnovers",
+    "opponent_team_id",
+    "opponent_team_uid",
+    "opponent_team_slug",
+    "opponent_team_location",
+    "opponent_team_name",
+    "opponent_team_abbreviation",
+    "opponent_team_display_name",
+    "opponent_team_short_display_name",
+    "opponent_team_color",
+    "opponent_team_alternate_color",
+    "opponent_team_logo",
+    "opponent_team_score"
+  )
+
+  expect_equal(sort(colnames(x)), sort(cols))
+  expect_s3_class(x, "data.frame")
+
+})

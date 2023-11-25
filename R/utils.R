@@ -38,7 +38,8 @@ login <- function(user_email=Sys.getenv("KP_USER"), user_pw = Sys.getenv("KP_PW"
 
   url <- "https://kenpom.com/index.php"
   #create a web session with the desired login address
-  my_session <- rvest::session(url)
+  my_session <- rvest::session(url,
+                               httr::add_headers(.headers = .kp_headers()))
   login_form <- rvest::html_form(my_session)[[1]]
   #in this case the submit is the 2nd form
   filled_form <- rvest::html_form_set(login_form, email = user_email, password = user_pw)
@@ -68,8 +69,6 @@ kp_password <- function() {
     return(kp_pw)
   }
 }
-
-.datatable.aware <- TRUE
 
 #' @rdname kp_user_pw
 #' @export
@@ -101,6 +100,8 @@ progressively <- function(f, p = NULL){
 }
 
 
+.datatable.aware <- TRUE
+
 #' @title
 #' **Load .csv / .csv.gz file from a remote connection**
 #' @description
@@ -114,7 +115,6 @@ csv_from_url <- function(...){
   data.table::fread(...)
 }
 
-.datatable.aware <- TRUE
 
 
 #' @title
@@ -175,8 +175,8 @@ custom_mode <- function(x, na.rm = TRUE) {
 #' @export
 most_recent_mbb_season <- function() {
   ifelse(
-    as.double(substr(Sys.Date(), 6, 7)) >= 10,
-    as.double(substr(Sys.Date(), 1, 4))+1,
+    as.double(substr(Sys.Date(), 6, 7)) > 10,
+    as.double(substr(Sys.Date(), 1, 4)) + 1,
     as.double(substr(Sys.Date(), 1, 4))
   )
 }
@@ -187,9 +187,25 @@ most_recent_mbb_season <- function() {
 most_recent_nba_season <- function() {
   ifelse(
     as.double(substr(Sys.Date(), 6, 7)) >= 10,
-    as.double(substr(Sys.Date(), 1, 4))+1,
+    as.double(substr(Sys.Date(), 1, 4)) + 1,
     as.double(substr(Sys.Date(), 1, 4))
   )
+}
+
+#' @title **year to season (XXXX -> XXXX-YY)**
+#' @param year Four digit year (XXXX)
+#' @importFrom dplyr mutate filter select left_join
+#' @importFrom stringr str_detect
+#' @importFrom tidyr everything
+#' @export
+year_to_season <- function(year) {
+  first_year <- substr(year, 3, 4)
+  next_year <- as.numeric(first_year) + 1
+  next_year <- dplyr::case_when(
+    next_year < 10 & first_year > 0 ~ glue::glue("0{next_year}"),
+    first_year == 99 ~ "00",
+    TRUE ~ as.character(next_year))
+  return(glue::glue("{year}-{next_year}"))
 }
 
 #' **Clean KenPom Data Frame Team Names to match NCAA Team Names for easier merging**
@@ -271,7 +287,9 @@ check_status <- function(res) {
 
   x = httr::status_code(res)
 
-  if(x != 200) stop("The API returned an error", call. = FALSE)
+  if (x != 200) {
+    stop("The API returned an error", call. = FALSE)
+  }
 
 }
 
@@ -294,17 +312,16 @@ is_installed <- function(pkg) requireNamespace(pkg, quietly = TRUE)
 #' @importFrom RcppParallel defaultNumThreads
 NULL
 
-`%c%` <- function(x,y){
-  ifelse(!is.na(x),x,y)
+`%c%` <- function(x, y){
+  ifelse(!is.na(x), x, y)
 }
 
 
 
 # Functions for custom class
 # turn a data.frame into a tibble/hoopR_data
-make_hoopR_data <- function(df,type,timestamp){
-  out <- df %>%
-    tidyr::as_tibble()
+make_hoopR_data <- function(df, type, timestamp){
+  out <- df
 
   class(out) <- c("hoopR_data","tbl_df","tbl","data.table","data.frame")
   attr(out,"hoopR_timestamp") <- timestamp
@@ -315,9 +332,9 @@ make_hoopR_data <- function(df,type,timestamp){
 #' @export
 #' @noRd
 print.hoopR_data <- function(x,...) {
-  cli::cli_rule(left = "{attr(x,'hoopR_type')}",right = "{.emph hoopR {utils::packageVersion('hoopR')}}")
+  cli::cli_rule(left = "{attr(x,'hoopR_type')}", right = "{.emph hoopR {utils::packageVersion('hoopR')}}")
 
-  if(!is.null(attr(x,'hoopR_timestamp'))) {
+  if (!is.null(attr(x, 'hoopR_timestamp'))) {
     cli::cli_alert_info(
       "Data updated: {.field {format(attr(x,'hoopR_timestamp'), tz = Sys.timezone(), usetz = TRUE)}}"
     )
@@ -337,6 +354,7 @@ rbindlist_with_attrs <- function(dflist){
   out <- data.table::rbindlist(dflist, use.names = TRUE, fill = TRUE)
   attr(out,"hoopR_timestamp") <- hoopR_timestamp
   attr(out,"hoopR_type") <- hoopR_type
+  # class(out) <- c("hoopR_data","tbl_df","tbl","data.table","data.frame")
   out
 }
 

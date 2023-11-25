@@ -1,8 +1,9 @@
 test_that("KP - Get team lineups", {
   skip_on_cran()
   skip_on_ci()
+  skip_kenpom_test()
 
-  x <- kp_team_lineups(team = 'Florida St.', year= 2020)
+  x <- kp_team_lineups(team = "Florida St.", year= 2020)
 
   cols <- c(
     "year", "team", "min_pct", "pg_number", "pg_player_first_name",
@@ -14,7 +15,8 @@ test_that("KP - Get team lineups", {
   )
 
   expect_equal(colnames(x), cols)
-  expect_s3_class(x, 'data.frame')
+  expect_s3_class(x, "data.frame")
 
+  Sys.sleep(3)
 
 })

@@ -1,3 +1,64 @@
+# **hoopR 2.1.0**
+* ```load_nba_*()``` functions now use `sportsdataverse-data` releases url instead of `hoopR-data` repository URL
+* ```load_mbb_*()``` functions now use `sportsdataverse-data` releases url instead of `hoopR-data` repository URL
+- ```nba_pbp()``` and ```nba_pbps()``` functions add parameter `on_court` (default `TRUE`) to return on-court players for each play event, courtesy of [\@shufinskiy](https://github.com/shufinskiy)
+
+# **hoopR 2.0.0**
+
+### **NBA Stats API Live Endpoints**
+
+- ```nba_live_pbp()``` function added.
+- ```nba_live_boxscore()``` function added.
+- ```nba_todays_scoreboard()``` function added.
+
+### **NBA Boxscore V3 (and V3-styled) Endpoints Added**
+
+- ```nba_scoreboardv3()``` function added.
+- ```nba_boxscoretraditionalv3()``` function added.
+- ```nba_boxscoreadvancedv3()``` function added.
+- ```nba_boxscoremiscv3()``` function added.
+- ```nba_boxscorescoringv3()``` function added.
+- ```nba_boxscoreusagev3()``` function added.
+- ```nba_boxscorefourfactorsv3()``` function added.
+- ```nba_boxscoreplayertrackv3()``` function added.
+- ```nba_boxscorematchupsv3()``` function added.
+- ```nba_boxscorehustlev2()``` function added.
+- ```nba_boxscoredefensivev2()``` function added.
+
+### **Other NBA Stats API functions added**
+
+- ```nba_shotchartlineupdetail()``` function added.
+- ```nba_synergyplaytypes()``` function added.
+- ```nba_franchiseleaderswrank()``` function added.
+- ```nba_videodetailsasset()``` function added.
+- ```nba_infographicfanduelplayer()``` function added.
+- ```nba_teams()``` function added.
+
+### **Other Functions Added**
+
+- ```ncaa_mbb_teams()``` function added.
+
+### **Proxy Capability Added and Other Notes**
+
+- Add rlang dots option for passing ```httr::use_proxy()``` option to `nba_*()` functions
+- Returns documentation added for all working NBA Stats API endpoints and ESPN functions
+- Tests added for all working NBA Stats API endpoints and ESPN functions, over 1000 tests when
+  run locally
+
+# **hoopR 1.9.1**
+- Updates under-the-hood urls to the ESPN site API v2 summary endpoints
+
+# **hoopR 1.9.0**
+- Takes care of tidyselect deprecation of data masking for certain tidyr and dplyr functions.
+- Regular minor maintenance on `kp_*` functions
+- ```espn_mbb_game_rosters()``` function added.
+- ```espn_nba_game_rosters()``` function added.
+
+# **hoopR 1.8.1**
+- ```espn_mbb_player_stats()``` function exported properly.
+- ```espn_nba_player_stats()``` function exported properly.
+- Fixing headers for `kp_` functions.
+
 # **hoopR 1.8.0**
 - ```espn_mbb_player_stats()``` function added.
 - ```espn_mbb_team_stats()``` function added.

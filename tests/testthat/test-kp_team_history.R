@@ -1,13 +1,14 @@
 test_that("KP - Get team history", {
   skip_on_cran()
   skip_on_ci()
+  skip_kenpom_test()
 
   x <- kp_team_history(
-    team = 'Florida St.'
+    team = "Florida St."
   )
 
   y <- kp_team_history(
-    team = 'Duke'
+    team = "Duke"
   )
 
   cols <- c(
@@ -30,4 +31,7 @@ test_that("KP - Get team history", {
   expect_equal(colnames(y), cols)
   expect_s3_class(x, "data.frame")
   expect_s3_class(y, "data.frame")
+
+  Sys.sleep(3)
+
 })

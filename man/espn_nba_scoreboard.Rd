@@ -2,7 +2,7 @@
 % Please edit documentation in R/espn_nba_data.R
 \name{espn_nba_scoreboard}
 \alias{espn_nba_scoreboard}
-\title{\strong{Get ESPN men's NBA schedule for a specific year}}
+\title{\strong{Get ESPN NBA schedule for a specific year}}
 \usage{
 espn_nba_scoreboard(season)
 }
@@ -10,15 +10,67 @@ espn_nba_scoreboard(season)
 \item{season}{Either numeric or character (YYYYMMDD)}
 }
 \value{
-Returns a tibble
+Returns a tibble with scoreboard data\tabular{ll}{
+   col_name \tab types \cr
+   matchup \tab character \cr
+   matchup_short \tab character \cr
+   season \tab integer \cr
+   season_type \tab integer \cr
+   season_slug \tab character \cr
+   game_id \tab integer \cr
+   game_uid \tab character \cr
+   game_date \tab Date \cr
+   attendance \tab integer \cr
+   notes \tab logical \cr
+   status_name \tab character \cr
+   broadcasts \tab logical \cr
+   start_date \tab character \cr
+   geo_broadcasts \tab logical \cr
+   game_date_time \tab POSIXct \cr
+   home_team_name \tab character \cr
+   home_team_logo \tab character \cr
+   home_team_abb \tab character \cr
+   home_team_id \tab integer \cr
+   home_team_location \tab character \cr
+   home_team_full_name \tab character \cr
+   home_team_color \tab character \cr
+   home_score \tab integer \cr
+   home_win \tab integer \cr
+   home_record \tab character \cr
+   away_team_name \tab character \cr
+   away_team_logo \tab character \cr
+   away_team_abb \tab character \cr
+   away_team_id \tab integer \cr
+   away_team_location \tab character \cr
+   away_team_full_name \tab character \cr
+   away_team_color \tab character \cr
+   away_score \tab integer \cr
+   away_win \tab integer \cr
+   away_record \tab character \cr
+}
 }
 \description{
-\strong{Get ESPN men's NBA schedule for a specific year}
+\strong{Get ESPN NBA schedule for a specific year}
 }
 \examples{
 
-# Get schedule from date 2022-02-15 (returns 1000 results, max allowable.)
+# Get schedule from date 2022-11-17 (returns 1000 results, max allowable.)
 \donttest{
-  try(espn_nba_scoreboard (season = "20220215"))
+  try(espn_nba_scoreboard(season = 20230423))
 }
 }
+\seealso{
+Other ESPN NBA Functions: 
+\code{\link{espn_nba_betting}()},
+\code{\link{espn_nba_game_all}()},
+\code{\link{espn_nba_game_rosters}()},
+\code{\link{espn_nba_pbp}()},
+\code{\link{espn_nba_player_box}()},
+\code{\link{espn_nba_player_stats}()},
+\code{\link{espn_nba_standings}()},
+\code{\link{espn_nba_team_box}()},
+\code{\link{espn_nba_team_stats}()},
+\code{\link{espn_nba_teams}()},
+\code{\link{espn_nba_wp}()}
+}
+\concept{ESPN NBA Functions}

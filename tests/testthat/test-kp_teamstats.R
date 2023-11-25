@@ -1,6 +1,7 @@
 test_that("KP - Get team stats", {
   skip_on_cran()
   skip_on_ci()
+  skip_kenpom_test()
 
   x <- kp_teamstats(min_year = 2020, max_year = 2020)
 
@@ -17,7 +18,8 @@ test_that("KP - Get team stats", {
   )
 
   expect_equal(colnames(x), cols)
-  expect_s3_class(x, 'data.frame')
+  expect_s3_class(x, "data.frame")
 
+  Sys.sleep(3)
 
 })

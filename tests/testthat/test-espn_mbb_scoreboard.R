@@ -1,6 +1,6 @@
 test_that("ESPN - Get MBB scoreboard", {
   skip_on_cran()
-  x <- espn_mbb_scoreboard (season = "20220215")
+  x <- espn_mbb_scoreboard(season = "20220215")
 
   cols <- c(
     "matchup",
@@ -12,11 +12,13 @@ test_that("ESPN - Get MBB scoreboard", {
     "game_uid",
     "game_date",
     "attendance",
+    "play_by_play_available",
     "notes",
     "status_name",
     "broadcast_market",
     "broadcast_name",
     "start_date",
+    "game_date_time",
     "home_team_name",
     "home_team_logo",
     "home_team_abb",
@@ -39,6 +41,6 @@ test_that("ESPN - Get MBB scoreboard", {
     "away_record"
   )
   expect_equal(colnames(x), cols)
-  expect_s3_class(x, 'data.frame')
+  expect_s3_class(x, "data.frame")
 
 })
